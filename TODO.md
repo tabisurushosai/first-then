@@ -1,5 +1,5 @@
 # first-then TODO
-- [ ] T001: src/popup.ts に popup骨格(いま/つぎ の2枚表示 + カードプール)を構築
+- [x] T001: src/popup.ts に popup骨格(いま/つぎ の2枚表示 + カードプール)を構築
 - [ ] T1B: 保存は src/storage.ts の store(get/set/remove)経由に統一し、状態・ロジックは src/core/ に chrome.*/DOM 非依存で分離する(将来PWA移植のため)
 - [ ] T002: カードプールのCRUD(絵文字/ことば)を chrome.storage.local に保存・読込
 - [ ] T003: 「いま」「つぎ」に各1枚を選んで大きく表示
