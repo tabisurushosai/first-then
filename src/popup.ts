@@ -1,5 +1,6 @@
 import {
   addCardToPool,
+  completeNowCard,
   deletePoolCard,
   selectNextCard,
   selectNowCard,
@@ -149,6 +150,14 @@ async function handleAddCard(event: SubmitEvent): Promise<void> {
   await saveAndRender(nextState);
 }
 
+async function handleCompleteNow(): Promise<void> {
+  if (!currentState) {
+    return;
+  }
+
+  await saveAndRender(completeNowCard(currentState));
+}
+
 async function handlePoolAction(event: MouseEvent): Promise<void> {
   const target = event.target;
 
@@ -213,6 +222,14 @@ function renderPopupState(state: PopupState): void {
   stage.className = "stage";
   stage.append(renderBigCard("いま", state.now), renderBigCard("つぎ", state.next));
 
+  const completeButton = document.createElement("button");
+  completeButton.className = "complete-button";
+  completeButton.type = "button";
+  completeButton.textContent = "いまできた";
+  completeButton.addEventListener("click", () => {
+    void handleCompleteNow();
+  });
+
   const poolSection = document.createElement("section");
   poolSection.className = "pool";
 
@@ -232,7 +249,7 @@ function renderPopupState(state: PopupState): void {
   state.pool.forEach((card) => poolGrid.append(renderPoolCard(card, state)));
 
   poolSection.append(poolTitle, form, poolGrid);
-  root.append(stage, poolSection);
+  root.append(stage, completeButton, poolSection);
   app.replaceChildren(root);
 }
 
@@ -306,6 +323,18 @@ function applyPopupStyles(): void {
       font-weight: 700;
       line-height: 1.2;
       overflow-wrap: anywhere;
+    }
+
+    .complete-button {
+      min-height: 44px;
+      border: 1px solid #2f5d50;
+      border-radius: 8px;
+      background: #2f5d50;
+      color: #ffffff;
+      font: inherit;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
     }
 
     .pool {

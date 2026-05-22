@@ -107,6 +107,13 @@ export function selectNextCard(state: PopupState, cardId: string): PopupState {
   };
 }
 
+export function completeNowCard(state: PopupState): PopupState {
+  return {
+    ...state,
+    now: state.next,
+  };
+}
+
 export function deletePoolCard(state: PopupState, cardId: string): PopupState {
   if (state.pool.length <= 2) {
     return state;
