@@ -114,6 +114,7 @@ export function isPopupState(value: unknown): value is PopupState {
     Array.isArray(state.sequence) &&
     state.sequence.length >= 2 &&
     state.sequence.every(isCard) &&
+    typeof state.sequencePreviewEnabled === "boolean" &&
     Array.isArray(state.pool) &&
     state.pool.every(isCard) &&
     Array.isArray(state.savedPairs) &&
@@ -157,6 +158,7 @@ function normalizePopupState(value: unknown): PopupState {
     now,
     next,
     sequence: normalizedSequence,
+    sequencePreviewEnabled: state.sequencePreviewEnabled === true,
     pool,
     savedPairs: normalizeSavedPairs(state.savedPairs, pool),
     mode: isAppMode(state.mode) ? state.mode : defaultModeState.mode,

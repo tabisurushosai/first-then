@@ -18,6 +18,7 @@ export interface PopupState {
   now: Card;
   next: Card;
   sequence: Card[];
+  sequencePreviewEnabled: boolean;
   pool: Card[];
   savedPairs: SavedPair[];
   mode: AppMode;
@@ -43,6 +44,7 @@ export function createInitialPopupState(cards: Card[] = initialCards): PopupStat
     now,
     next,
     sequence: [now, next],
+    sequencePreviewEnabled: false,
     pool: [now, next, ...rest],
     savedPairs: [],
     ...defaultModeState,
@@ -265,6 +267,36 @@ export function removeSequenceCard(
     ...state,
     sequence: state.sequence.filter((_, itemIndex) => itemIndex !== index),
   };
+}
+
+export function setSequencePreviewEnabled<T extends PopupState>(
+  state: T,
+  enabled: boolean,
+  now = Date.now(),
+): T {
+  const access = getPremiumAccess(state.premium, now);
+
+  if (!access.enabled && enabled) {
+    return state;
+  }
+
+  return {
+    ...state,
+    sequencePreviewEnabled: enabled,
+  };
+}
+
+export function getSequencePreviewCard(
+  state: PopupState,
+  now = Date.now(),
+): Card | null {
+  const access = getPremiumAccess(state.premium, now);
+
+  if (!access.enabled || !state.sequencePreviewEnabled) {
+    return null;
+  }
+
+  return state.sequence[2] ?? null;
 }
 
 export function deletePoolCard(state: PopupState, cardId: string): PopupState {

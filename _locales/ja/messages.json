@@ -89,6 +89,15 @@
   "sequence": {
     "message": "連鎖"
   },
+  "previewNext": {
+    "message": "つぎのつぎ"
+  },
+  "sequencePreviewOption": {
+    "message": "つぎのつぎを先読み表示"
+  },
+  "sequencePreviewLocked": {
+    "message": "Premiumでつぎのつぎを先読み表示"
+  },
   "addStep": {
     "message": "ステップ追加"
   },

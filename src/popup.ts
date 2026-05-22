@@ -6,11 +6,13 @@ import {
   completeNowCard,
   deletePoolCard,
   deleteSavedPair,
+  getSequencePreviewCard,
   removeSequenceCard,
   replaceSequenceCard,
   saveCurrentPair,
   selectNextCard,
   selectNowCard,
+  setSequencePreviewEnabled,
   type Card,
   type CardInput,
   type PopupState,
@@ -356,6 +358,14 @@ async function handleStartTrial(): Promise<void> {
   await saveAndRender(startPremiumTrial(currentState));
 }
 
+async function handleSequencePreviewToggle(event: Event): Promise<void> {
+  if (!currentState || !(event.currentTarget instanceof HTMLInputElement)) {
+    return;
+  }
+
+  await saveAndRender(setSequencePreviewEnabled(currentState, event.currentTarget.checked));
+}
+
 function handleOpenCheckout(): void {
   window.open(stripeCheckoutUrl, "_blank", "noopener,noreferrer");
 }
@@ -613,6 +623,12 @@ function renderPopupState(state: PopupState): void {
   stage.className = "stage";
   stage.append(renderBigCard(t("now"), state.now), renderBigCard(t("next"), state.next));
 
+  const previewCard = getSequencePreviewCard(state);
+
+  if (previewCard) {
+    stage.append(renderPreviewCard(previewCard));
+  }
+
   const completeButton = document.createElement("button");
   completeButton.className = "complete-button";
   completeButton.type = "button";
@@ -692,6 +708,26 @@ function renderPopupState(state: PopupState): void {
   }
 
   app.replaceChildren(root);
+}
+
+function renderPreviewCard(card: Card): HTMLElement {
+  const section = document.createElement("section");
+  section.className = "stage-card stage-card--preview";
+  section.setAttribute("aria-label", `${t("previewNext")}: ${cardAccessibleName(card)}`);
+
+  const heading = document.createElement("h2");
+  heading.textContent = t("previewNext");
+
+  const emoji = document.createElement("div");
+  emoji.className = "stage-card__emoji";
+  emoji.textContent = card.emoji;
+
+  const label = document.createElement("div");
+  label.className = "stage-card__label";
+  label.textContent = localizedCardLabel(card);
+
+  section.append(heading, emoji, label);
+  return section;
 }
 
 function renderSavedPairsSection(state: PopupState): HTMLElement {
@@ -872,6 +908,22 @@ function renderPremiumSection(state: PopupState): HTMLElement {
   const sequenceTitle = document.createElement("h3");
   sequenceTitle.textContent = t("sequence");
 
+  const previewLabel = document.createElement("label");
+  previewLabel.className = "sequence-preview-toggle";
+
+  const previewToggle = document.createElement("input");
+  previewToggle.type = "checkbox";
+  previewToggle.checked = state.sequencePreviewEnabled && access.enabled;
+  previewToggle.disabled = !access.enabled;
+  previewToggle.addEventListener("change", (event) => {
+    void handleSequencePreviewToggle(event);
+  });
+
+  const previewText = document.createElement("span");
+  previewText.textContent = access.enabled ? t("sequencePreviewOption") : t("sequencePreviewLocked");
+
+  previewLabel.append(previewToggle, previewText);
+
   const sequenceList = document.createElement("div");
   sequenceList.className = "sequence-list";
   sequenceList.addEventListener("change", (event) => {
@@ -958,7 +1010,7 @@ function renderPremiumSection(state: PopupState): HTMLElement {
   addButton.setAttribute("aria-label", t("addStepAria"));
 
   addForm.append(select, addButton);
-  section.append(title, status, actions, sequenceTitle, sequenceList, addForm);
+  section.append(title, status, actions, sequenceTitle, previewLabel, sequenceList, addForm);
   return section;
 }
 
@@ -1091,6 +1143,29 @@ function applyPopupStyles(): void {
       border-color: #94d7aa;
     }
 
+    .stage-card--preview {
+      grid-column: 1 / -1;
+      min-height: 118px;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 12px;
+      background: #eef4ff;
+      border-color: #a9bee8;
+    }
+
+    .stage-card--preview h2 {
+      grid-column: 1 / -1;
+    }
+
+    .stage-card--preview .stage-card__emoji {
+      font-size: 46px;
+    }
+
+    .stage-card--preview .stage-card__label {
+      font-size: 18px;
+      text-align: left;
+    }
+
     .stage-card__emoji {
       font-size: 68px;
       line-height: 1;
@@ -1118,6 +1193,20 @@ function applyPopupStyles(): void {
 
     .popup--child .stage-card__label {
       font-size: 28px;
+    }
+
+    .popup--child .stage-card--preview {
+      min-height: 138px;
+      grid-template-columns: auto 1fr;
+      padding: 16px 14px;
+    }
+
+    .popup--child .stage-card--preview .stage-card__emoji {
+      font-size: 56px;
+    }
+
+    .popup--child .stage-card--preview .stage-card__label {
+      font-size: 22px;
     }
 
     .complete-button {
@@ -1292,6 +1381,30 @@ function applyPopupStyles(): void {
     .sequence-list {
       display: grid;
       gap: 6px;
+    }
+
+    .sequence-preview-toggle {
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 2px solid #cad7e8;
+      border-radius: 14px;
+      background: #ffffff;
+      color: #243044;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .sequence-preview-toggle input {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      accent-color: #166f59;
     }
 
     .sequence-row {

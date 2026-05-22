@@ -89,6 +89,15 @@
   "sequence": {
     "message": "Chain"
   },
+  "previewNext": {
+    "message": "After next"
+  },
+  "sequencePreviewOption": {
+    "message": "Show one after-next preview"
+  },
+  "sequencePreviewLocked": {
+    "message": "Premium shows one after-next preview"
+  },
   "addStep": {
     "message": "Add step"
   },
