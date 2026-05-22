@@ -9,6 +9,6 @@
 - [x] T007: 起動時に storage.local から全状態を復元
 - [x] T008: _locales ja/en を chrome.i18n で全UIに適用
 - [x] T009: Premiumゲート(7日トライアル + Stripe Checkout URL)。無料は基本、Premiumで3ステップ連鎖+カード差し替え
-- [ ] T010: npm run build を通し ts/lint を解消
-- [ ] T011: release/first-then.zip 生成(node_modules除外)
-- [ ] T012: legal/PRIVACY.md と TERMS.md 作成(外部通信なし・データ収集なし・医療効果を主張しない)
+- [x] T010: npm run build を通し ts/lint を解消
+- [x] T011: release/first-then.zip 生成(node_modules除外)
+- [x] T012: legal/PRIVACY.md と TERMS.md 作成(外部通信なし・データ収集なし・医療効果を主張しない)
