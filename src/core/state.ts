@@ -27,6 +27,41 @@ function isAppMode(value: unknown): value is AppMode {
   return value === "parent" || value === "child";
 }
 
+function normalizeCard(value: unknown): Card | null {
+  return isCard(value) ? value : null;
+}
+
+function normalizeCardList(value: unknown): Card[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    const card = normalizeCard(item);
+    return card ? [card] : [];
+  });
+}
+
+function compactCards(cards: Array<Card | null>): Card[] {
+  const seenIds = new Set<string>();
+  const compacted: Card[] = [];
+
+  cards.forEach((card) => {
+    if (!card || seenIds.has(card.id)) {
+      return;
+    }
+
+    seenIds.add(card.id);
+    compacted.push(card);
+  });
+
+  return compacted;
+}
+
+function findCardById(cards: Card[], card: Card): Card | null {
+  return cards.find((item) => item.id === card.id) ?? card;
+}
+
 export function isPopupState(value: unknown): value is PopupState {
   if (!value || typeof value !== "object") {
     return false;
@@ -57,23 +92,30 @@ function normalizePopupState(value: unknown): PopupState {
   }
 
   const state = value as Record<string, unknown>;
-
-  if (!isCard(state.now) || !isCard(state.next) || !Array.isArray(state.pool) || !state.pool.every(isCard)) {
-    return createInitialPopupState();
-  }
-
-  const sequence =
-    Array.isArray(state.sequence) &&
-    state.sequence.length >= 2 &&
-    state.sequence.every(isCard)
-      ? state.sequence
-      : [state.now, state.next];
+  const initialState = createInitialPopupState();
+  const savedNow = normalizeCard(state.now);
+  const savedNext = normalizeCard(state.next);
+  const savedPool = normalizeCardList(state.pool);
+  const savedSequence = normalizeCardList(state.sequence);
+  const savedCards = compactCards([savedNow, savedNext, ...savedSequence, ...savedPool]);
+  const pool = savedCards.length >= 2 ? savedCards : initialState.pool;
+  const now = savedNow ? findCardById(pool, savedNow) ?? pool[0] : pool[0] ?? initialState.now;
+  const next = savedNext ? findCardById(pool, savedNext) ?? pool[1] : pool[1] ?? initialState.next;
+  const sequence = savedSequence.length >= 2 ? savedSequence : [now, next];
+  const normalizedSequence = [
+    findCardById(pool, sequence[0]) ?? now,
+    findCardById(pool, sequence[1]) ?? next,
+    ...sequence.slice(2).flatMap((card) => {
+      const poolCard = findCardById(pool, card);
+      return poolCard ? [poolCard] : [];
+    }),
+  ];
 
   return {
-    now: state.now,
-    next: state.next,
-    sequence,
-    pool: state.pool,
+    now,
+    next,
+    sequence: normalizedSequence,
+    pool,
     mode: isAppMode(state.mode) ? state.mode : defaultModeState.mode,
     parentPin: typeof state.parentPin === "string" ? state.parentPin : defaultModeState.parentPin,
     premium: normalizePremiumState(state.premium),
