@@ -56,6 +56,30 @@
   "cardPool": {
     "message": "カードプール"
   },
+  "premium": {
+    "message": "Premium"
+  },
+  "premiumLocked": {
+    "message": "無料版は2ステップまで使えます。Premiumで3ステップ以上の連鎖とカード差し替えが使えます。"
+  },
+  "premiumTrialActive": {
+    "message": "トライアル中: 残り$days$日"
+  },
+  "premiumUnlocked": {
+    "message": "Premium有効"
+  },
+  "startTrial": {
+    "message": "7日トライアル"
+  },
+  "stripeCheckout": {
+    "message": "Stripeで購入"
+  },
+  "sequence": {
+    "message": "連鎖"
+  },
+  "addStep": {
+    "message": "ステップ追加"
+  },
   "card_change_clothes": {
     "message": "きがえ"
   },

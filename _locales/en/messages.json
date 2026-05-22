@@ -56,6 +56,30 @@
   "cardPool": {
     "message": "Card pool"
   },
+  "premium": {
+    "message": "Premium"
+  },
+  "premiumLocked": {
+    "message": "Free supports two steps. Premium unlocks three-step chains and card replacement."
+  },
+  "premiumTrialActive": {
+    "message": "Trial active: $days$ days left"
+  },
+  "premiumUnlocked": {
+    "message": "Premium active"
+  },
+  "startTrial": {
+    "message": "7-day trial"
+  },
+  "stripeCheckout": {
+    "message": "Buy with Stripe"
+  },
+  "sequence": {
+    "message": "Chain"
+  },
+  "addStep": {
+    "message": "Add step"
+  },
   "card_change_clothes": {
     "message": "Change clothes"
   },

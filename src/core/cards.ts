@@ -1,5 +1,6 @@
 import { presetCards, type FirstThenPreset } from "./presets";
 import { defaultModeState, type AppMode } from "./mode";
+import { defaultPremiumState, getPremiumAccess, type PremiumState } from "./premium";
 
 export interface Card {
   id: string;
@@ -10,9 +11,11 @@ export interface Card {
 export interface PopupState {
   now: Card;
   next: Card;
+  sequence: Card[];
   pool: Card[];
   mode: AppMode;
   parentPin: string | null;
+  premium: PremiumState;
 }
 
 export interface CardInput {
@@ -32,8 +35,10 @@ export function createInitialPopupState(cards: Card[] = initialCards): PopupStat
   return {
     now,
     next,
+    sequence: [now, next],
     pool: [now, next, ...rest],
     ...defaultModeState,
+    premium: defaultPremiumState,
   };
 }
 
@@ -75,6 +80,7 @@ export function updatePoolCard(state: PopupState, cardId: string, input: CardInp
     ...state,
     now: updateCard(state.now),
     next: updateCard(state.next),
+    sequence: state.sequence.map(updateCard),
     pool: state.pool.map(updateCard),
   };
 }
@@ -93,6 +99,7 @@ export function selectNowCard(state: PopupState, cardId: string): PopupState {
   return {
     ...state,
     now: card,
+    sequence: [card, state.sequence[1] ?? state.next, ...state.sequence.slice(2)],
   };
 }
 
@@ -106,13 +113,20 @@ export function selectNextCard(state: PopupState, cardId: string): PopupState {
   return {
     ...state,
     next: card,
+    sequence: [state.sequence[0] ?? state.now, card, ...state.sequence.slice(2)],
   };
 }
 
 export function completeNowCard(state: PopupState): PopupState {
+  const [, nextStep, followingStep, ...rest] = state.sequence;
+  const now = nextStep ?? state.next;
+  const next = followingStep ?? now;
+
   return {
     ...state,
-    now: state.next,
+    now,
+    next,
+    sequence: [now, next, ...rest],
   };
 }
 
@@ -128,6 +142,67 @@ export function applyFirstThenPreset(state: PopupState, preset: FirstThenPreset)
     ...state,
     now,
     next,
+    sequence: [now, next, ...state.sequence.slice(2)],
+  };
+}
+
+export function replaceSequenceCard(
+  state: PopupState,
+  index: number,
+  cardId: string,
+  now = Date.now(),
+): PopupState {
+  const card = findPoolCard(state, cardId);
+  const access = getPremiumAccess(state.premium, now);
+
+  if (!card || index < 0 || (!access.enabled && index > 1)) {
+    return state;
+  }
+
+  const sequence = [...state.sequence];
+  sequence[index] = card;
+  const next = sequence[1] ?? sequence[0] ?? state.next;
+
+  return {
+    ...state,
+    now: sequence[0] ?? state.now,
+    next,
+    sequence: [sequence[0] ?? state.now, next, ...sequence.slice(2)],
+  };
+}
+
+export function appendSequenceCard(
+  state: PopupState,
+  cardId: string,
+  now = Date.now(),
+): PopupState {
+  const card = findPoolCard(state, cardId);
+  const access = getPremiumAccess(state.premium, now);
+
+  if (!card || !access.enabled) {
+    return state;
+  }
+
+  return {
+    ...state,
+    sequence: [...state.sequence, card],
+  };
+}
+
+export function removeSequenceCard(
+  state: PopupState,
+  index: number,
+  now = Date.now(),
+): PopupState {
+  const access = getPremiumAccess(state.premium, now);
+
+  if (!access.enabled || index < 2 || state.sequence.length <= 2) {
+    return state;
+  }
+
+  return {
+    ...state,
+    sequence: state.sequence.filter((_, itemIndex) => itemIndex !== index),
   };
 }
 
@@ -146,6 +221,13 @@ export function deletePoolCard(state: PopupState, cardId: string): PopupState {
     ...state,
     now: state.now.id === cardId ? pool[0] : state.now,
     next: state.next.id === cardId ? pool[1] : state.next,
+    sequence: state.sequence.map((card, index) => {
+      if (card.id !== cardId) {
+        return card;
+      }
+
+      return pool[index] ?? pool[1] ?? pool[0];
+    }),
     pool,
   };
 }

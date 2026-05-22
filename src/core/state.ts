@@ -1,5 +1,6 @@
 import { createInitialPopupState, type Card, type PopupState } from "./cards";
 import { defaultModeState, type AppMode } from "./mode";
+import { isPremiumState, normalizePremiumState } from "./premium";
 
 export const popupStateStorageKey = "popupState";
 
@@ -35,10 +36,14 @@ export function isPopupState(value: unknown): value is PopupState {
   return (
     isCard(state.now) &&
     isCard(state.next) &&
+    Array.isArray(state.sequence) &&
+    state.sequence.length >= 2 &&
+    state.sequence.every(isCard) &&
     Array.isArray(state.pool) &&
     state.pool.every(isCard) &&
     isAppMode(state.mode) &&
-    (typeof state.parentPin === "string" || state.parentPin === null)
+    (typeof state.parentPin === "string" || state.parentPin === null) &&
+    isPremiumState(state.premium)
   );
 }
 
@@ -57,12 +62,21 @@ function normalizePopupState(value: unknown): PopupState {
     return createInitialPopupState();
   }
 
+  const sequence =
+    Array.isArray(state.sequence) &&
+    state.sequence.length >= 2 &&
+    state.sequence.every(isCard)
+      ? state.sequence
+      : [state.now, state.next];
+
   return {
     now: state.now,
     next: state.next,
+    sequence,
     pool: state.pool,
     mode: isAppMode(state.mode) ? state.mode : defaultModeState.mode,
     parentPin: typeof state.parentPin === "string" ? state.parentPin : defaultModeState.parentPin,
+    premium: normalizePremiumState(state.premium),
   };
 }
 

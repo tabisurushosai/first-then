@@ -1,8 +1,11 @@
 import {
   addCardToPool,
+  appendSequenceCard,
   applyFirstThenPreset,
   completeNowCard,
   deletePoolCard,
+  removeSequenceCard,
+  replaceSequenceCard,
   selectNextCard,
   selectNowCard,
   type Card,
@@ -11,6 +14,7 @@ import {
   updatePoolCard,
 } from "./core/cards";
 import { setParentPin, switchToChildMode, switchToParentMode } from "./core/mode";
+import { getPremiumAccess, startPremiumTrial, stripeCheckoutUrl } from "./core/premium";
 import { firstThenPresets, presetCards } from "./core/presets";
 import { loadPopupState, savePopupState } from "./core/state";
 import { store } from "./storage";
@@ -231,6 +235,75 @@ async function handleChangePin(): Promise<void> {
   await saveAndRender(setParentPin(currentState, pin));
 }
 
+async function handleStartTrial(): Promise<void> {
+  if (!currentState) {
+    return;
+  }
+
+  await saveAndRender(startPremiumTrial(currentState));
+}
+
+function handleOpenCheckout(): void {
+  window.open(stripeCheckoutUrl, "_blank", "noopener,noreferrer");
+}
+
+async function handleSequenceAction(event: Event): Promise<void> {
+  const target = event.target;
+
+  if (!currentState || !(target instanceof HTMLElement)) {
+    return;
+  }
+
+  if (target instanceof HTMLSelectElement) {
+    const index = Number(target.dataset.sequenceIndex);
+
+    if (!Number.isInteger(index)) {
+      return;
+    }
+
+    await saveAndRender(replaceSequenceCard(currentState, index, target.value));
+    return;
+  }
+
+  if (!(target instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const action = target.dataset.action;
+
+  if (action === "remove-sequence") {
+    const index = Number(target.dataset.sequenceIndex);
+
+    if (Number.isInteger(index)) {
+      await saveAndRender(removeSequenceCard(currentState, index));
+    }
+
+    return;
+  }
+
+  if (action === "add-sequence") {
+    const select = target.form?.elements.namedItem("sequenceCardId");
+
+    if (select instanceof HTMLSelectElement) {
+      await saveAndRender(appendSequenceCard(currentState, select.value));
+    }
+  }
+}
+
+async function handleAddSequenceStep(event: SubmitEvent): Promise<void> {
+  event.preventDefault();
+
+  if (!currentState || !(event.currentTarget instanceof HTMLFormElement)) {
+    return;
+  }
+
+  const select = event.currentTarget.elements.namedItem("sequenceCardId");
+
+  if (select instanceof HTMLSelectElement) {
+    await saveAndRender(appendSequenceCard(currentState, select.value));
+  }
+}
+
 async function handlePresetAction(event: MouseEvent): Promise<void> {
   const target = event.target;
 
@@ -397,13 +470,126 @@ function renderPopupState(state: PopupState): void {
   state.pool.forEach((card) => poolGrid.append(renderPoolCard(card, state)));
 
   poolSection.append(poolTitle, form, poolGrid);
+
+  const premiumSection = renderPremiumSection(state);
   root.append(modeBar, stage, completeButton);
 
   if (state.mode === "parent") {
-    root.append(presetSection, poolSection);
+    root.append(premiumSection, presetSection, poolSection);
   }
 
   app.replaceChildren(root);
+}
+
+function renderPremiumSection(state: PopupState): HTMLElement {
+  const access = getPremiumAccess(state.premium);
+  const section = document.createElement("section");
+  section.className = "premium";
+
+  const title = document.createElement("h2");
+  title.textContent = t("premium");
+
+  const status = document.createElement("p");
+  status.className = "premium__status";
+  status.textContent = access.enabled
+    ? access.trialActive
+      ? t("premiumTrialActive").replace("$days$", String(access.trialDaysLeft))
+      : t("premiumUnlocked")
+    : t("premiumLocked");
+
+  const actions = document.createElement("div");
+  actions.className = "premium__actions";
+
+  if (!state.premium.trialStartedAt) {
+    const trialButton = document.createElement("button");
+    trialButton.type = "button";
+    trialButton.textContent = t("startTrial");
+    trialButton.addEventListener("click", () => {
+      void handleStartTrial();
+    });
+    actions.append(trialButton);
+  }
+
+  const checkoutButton = document.createElement("button");
+  checkoutButton.type = "button";
+  checkoutButton.textContent = t("stripeCheckout");
+  checkoutButton.addEventListener("click", handleOpenCheckout);
+  actions.append(checkoutButton);
+
+  const sequenceTitle = document.createElement("h3");
+  sequenceTitle.textContent = t("sequence");
+
+  const sequenceList = document.createElement("div");
+  sequenceList.className = "sequence-list";
+  sequenceList.addEventListener("change", (event) => {
+    void handleSequenceAction(event);
+  });
+  sequenceList.addEventListener("click", (event) => {
+    void handleSequenceAction(event);
+  });
+
+  state.sequence.forEach((card, index) => {
+    const row = document.createElement("div");
+    row.className = "sequence-row";
+
+    const label = document.createElement("label");
+    label.textContent = `${index + 1}.`;
+
+    const select = document.createElement("select");
+    select.name = `sequence-${index}`;
+    select.dataset.sequenceIndex = String(index);
+    select.disabled = !access.enabled && index > 1;
+
+    state.pool.forEach((poolCard) => {
+      const option = document.createElement("option");
+      option.value = poolCard.id;
+      option.textContent = `${poolCard.emoji} ${localizedCardLabel(poolCard)}`;
+      option.selected = poolCard.id === card.id;
+      select.append(option);
+    });
+
+    label.append(select);
+    row.append(label);
+
+    if (index > 1) {
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.textContent = t("delete");
+      removeButton.dataset.action = "remove-sequence";
+      removeButton.dataset.sequenceIndex = String(index);
+      removeButton.disabled = !access.enabled;
+      row.append(removeButton);
+    }
+
+    sequenceList.append(row);
+  });
+
+  const addForm = document.createElement("form");
+  addForm.className = "sequence-add";
+  addForm.addEventListener("submit", (event) => {
+    void handleAddSequenceStep(event);
+  });
+
+  const select = document.createElement("select");
+  select.name = "sequenceCardId";
+  select.disabled = !access.enabled;
+
+  state.pool.forEach((card) => {
+    const option = document.createElement("option");
+    option.value = card.id;
+    option.textContent = `${card.emoji} ${localizedCardLabel(card)}`;
+    select.append(option);
+  });
+
+  const addButton = document.createElement("button");
+  addButton.type = "submit";
+  addButton.textContent = t("addStep");
+  addButton.dataset.action = "add-sequence";
+  addButton.disabled = !access.enabled;
+
+  addForm.append(select, addButton);
+  section.append(title, status, actions, sequenceTitle, sequenceList, addForm);
+  return section;
 }
 
 async function renderPopup(): Promise<void> {
@@ -438,6 +624,12 @@ function applyPopupStyles(): void {
     h2 {
       margin: 0;
       font-size: 14px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 13px;
       line-height: 1.3;
     }
 
@@ -526,9 +718,77 @@ function applyPopupStyles(): void {
     }
 
     .presets,
-    .pool {
+    .pool,
+    .premium {
       display: grid;
       gap: 8px;
+    }
+
+    .premium__status {
+      margin: 0;
+      color: #4c463c;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .premium__actions,
+    .sequence-add {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .premium button,
+    .sequence-row button {
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid #817c70;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #1d2433;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .premium button:disabled,
+    .premium select:disabled {
+      cursor: default;
+      opacity: 0.55;
+    }
+
+    .sequence-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .sequence-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .sequence-row label {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .premium select {
+      min-width: 0;
+      height: 34px;
+      padding: 5px 8px;
+      border: 1px solid #c9c6ba;
+      border-radius: 6px;
+      background: #ffffff;
+      color: inherit;
+      font: inherit;
     }
 
     .preset-grid {
