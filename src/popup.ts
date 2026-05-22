@@ -43,6 +43,17 @@ function localizedCardLabel(card: Card): string {
   return message || card.label;
 }
 
+function cardAccessibleName(card: Card): string {
+  return `${card.emoji} ${localizedCardLabel(card)}`;
+}
+
+function interpolate(messageName: string, values: Record<string, string>): string {
+  return Object.entries(values).reduce(
+    (message, [key, value]) => message.split(`$${key}$`).join(value),
+    t(messageName),
+  );
+}
+
 function createCardId(): string {
   if (typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -54,7 +65,7 @@ function createCardId(): string {
 function renderBigCard(title: string, card: Card): HTMLElement {
   const section = document.createElement("section");
   section.className = "stage-card";
-  section.setAttribute("aria-label", title);
+  section.setAttribute("aria-label", `${title}: ${cardAccessibleName(card)}`);
 
   const heading = document.createElement("h2");
   heading.textContent = title;
@@ -76,6 +87,7 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   item.className = "pool-card";
   item.dataset.selectedNow = String(state.now.id === card.id);
   item.dataset.selectedNext = String(state.next.id === card.id);
+  item.setAttribute("aria-label", cardAccessibleName(card));
 
   const emoji = document.createElement("span");
   emoji.className = "pool-card__emoji";
@@ -84,6 +96,24 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   const label = document.createElement("span");
   label.className = "pool-card__label";
   label.textContent = localizedCardLabel(card);
+
+  const status = document.createElement("span");
+  status.className = "pool-card__status";
+
+  if (state.now.id === card.id && state.next.id === card.id) {
+    status.textContent = `${t("selectedNow")} / ${t("selectedNext")}`;
+  } else if (state.now.id === card.id) {
+    status.textContent = t("selectedNow");
+  } else if (state.next.id === card.id) {
+    status.textContent = t("selectedNext");
+  } else {
+    status.classList.add("visually-hidden");
+    status.textContent = t("notSelected");
+  }
+
+  const text = document.createElement("span");
+  text.className = "pool-card__text";
+  text.append(label, status);
 
   const actions = document.createElement("div");
   actions.className = "pool-card__actions";
@@ -95,6 +125,10 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   nowButton.dataset.action = "select-now";
   nowButton.dataset.cardId = card.id;
   nowButton.setAttribute("aria-pressed", String(state.now.id === card.id));
+  nowButton.setAttribute(
+    "aria-label",
+    interpolate("selectNowAria", { card: cardAccessibleName(card) }),
+  );
 
   const nextButton = document.createElement("button");
   nextButton.className = "icon-button";
@@ -103,6 +137,10 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   nextButton.dataset.action = "select-next";
   nextButton.dataset.cardId = card.id;
   nextButton.setAttribute("aria-pressed", String(state.next.id === card.id));
+  nextButton.setAttribute(
+    "aria-label",
+    interpolate("selectNextAria", { card: cardAccessibleName(card) }),
+  );
 
   const editButton = document.createElement("button");
   editButton.className = "icon-button";
@@ -110,6 +148,10 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   editButton.textContent = t("edit");
   editButton.dataset.action = "edit";
   editButton.dataset.cardId = card.id;
+  editButton.setAttribute(
+    "aria-label",
+    interpolate("editCardAria", { card: cardAccessibleName(card) }),
+  );
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "icon-button";
@@ -117,9 +159,13 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   deleteButton.textContent = t("delete");
   deleteButton.dataset.action = "delete";
   deleteButton.dataset.cardId = card.id;
+  deleteButton.setAttribute(
+    "aria-label",
+    interpolate("deleteCardAria", { card: cardAccessibleName(card) }),
+  );
 
   actions.append(nowButton, nextButton, editButton, deleteButton);
-  item.append(emoji, label, actions);
+  item.append(emoji, text, actions);
   return item;
 }
 
@@ -398,6 +444,12 @@ function renderPopupState(state: PopupState): void {
   modeButton.className = "mode-button";
   modeButton.type = "button";
   modeButton.textContent = state.mode === "parent" ? t("childMode") : t("parentMode");
+  modeButton.setAttribute(
+    "aria-label",
+    interpolate("switchModeAria", {
+      mode: state.mode === "parent" ? t("childMode") : t("parentMode"),
+    }),
+  );
   modeButton.addEventListener("click", () => {
     void (state.mode === "parent" ? handleEnterChildMode() : handleEnterParentMode());
   });
@@ -408,6 +460,7 @@ function renderPopupState(state: PopupState): void {
     pinButton.className = "mode-button";
     pinButton.type = "button";
     pinButton.textContent = t("changePin");
+    pinButton.setAttribute("aria-label", t("changePinAria"));
     pinButton.addEventListener("click", () => {
       void handleChangePin();
     });
@@ -424,6 +477,7 @@ function renderPopupState(state: PopupState): void {
   completeButton.className = "complete-button";
   completeButton.type = "button";
   completeButton.textContent = t("completeNow");
+  completeButton.setAttribute("aria-label", t("completeNowAria"));
   completeButton.addEventListener("click", () => {
     void handleCompleteNow();
   });
@@ -446,6 +500,7 @@ function renderPopupState(state: PopupState): void {
     button.type = "button";
     button.textContent = localizedPresetLabel(preset.id, preset.label);
     button.dataset.presetId = preset.id;
+    button.setAttribute("aria-label", interpolate("presetAria", { preset: button.textContent }));
     presetGrid.append(button);
   });
 
@@ -504,6 +559,7 @@ function renderPremiumSection(state: PopupState): HTMLElement {
     const trialButton = document.createElement("button");
     trialButton.type = "button";
     trialButton.textContent = t("startTrial");
+    trialButton.setAttribute("aria-label", t("startTrialAria"));
     trialButton.addEventListener("click", () => {
       void handleStartTrial();
     });
@@ -513,6 +569,7 @@ function renderPremiumSection(state: PopupState): HTMLElement {
   const checkoutButton = document.createElement("button");
   checkoutButton.type = "button";
   checkoutButton.textContent = t("stripeCheckout");
+  checkoutButton.setAttribute("aria-label", t("stripeCheckoutAria"));
   checkoutButton.addEventListener("click", handleOpenCheckout);
   actions.append(checkoutButton);
 
@@ -539,6 +596,13 @@ function renderPremiumSection(state: PopupState): HTMLElement {
     select.name = `sequence-${index}`;
     select.dataset.sequenceIndex = String(index);
     select.disabled = !access.enabled && index > 1;
+    select.setAttribute(
+      "aria-label",
+      interpolate("sequenceStepAria", {
+        number: String(index + 1),
+        card: cardAccessibleName(card),
+      }),
+    );
 
     state.pool.forEach((poolCard) => {
       const option = document.createElement("option");
@@ -558,6 +622,10 @@ function renderPremiumSection(state: PopupState): HTMLElement {
       removeButton.dataset.action = "remove-sequence";
       removeButton.dataset.sequenceIndex = String(index);
       removeButton.disabled = !access.enabled;
+      removeButton.setAttribute(
+        "aria-label",
+        interpolate("removeSequenceStepAria", { number: String(index + 1) }),
+      );
       row.append(removeButton);
     }
 
@@ -573,6 +641,7 @@ function renderPremiumSection(state: PopupState): HTMLElement {
   const select = document.createElement("select");
   select.name = "sequenceCardId";
   select.disabled = !access.enabled;
+  select.setAttribute("aria-label", t("addSequenceStepAria"));
 
   state.pool.forEach((card) => {
     const option = document.createElement("option");
@@ -586,6 +655,7 @@ function renderPremiumSection(state: PopupState): HTMLElement {
   addButton.textContent = t("addStep");
   addButton.dataset.action = "add-sequence";
   addButton.disabled = !access.enabled;
+  addButton.setAttribute("aria-label", t("addStepAria"));
 
   addForm.append(select, addButton);
   section.append(title, status, actions, sequenceTitle, sequenceList, addForm);
@@ -628,6 +698,25 @@ function applyPopupStyles(): void {
       color: #30415f;
       font-size: 14px;
       line-height: 1.3;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 4px solid #0b5cab;
+      outline-offset: 3px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .popup {
@@ -716,15 +805,15 @@ function applyPopupStyles(): void {
 
     .complete-button {
       min-height: 56px;
-      border: 2px solid #196a55;
+      border: 2px solid #0f4f40;
       border-radius: 20px;
-      background: #21846a;
+      background: #166f59;
       color: #ffffff;
       font: inherit;
       font-size: 20px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 0 #17624f;
+      box-shadow: 0 4px 0 #0f4f40;
     }
 
     .presets,
@@ -843,9 +932,9 @@ function applyPopupStyles(): void {
     .icon-button {
       min-height: 44px;
       padding: 8px 12px;
-      border: 2px solid #196a55;
+      border: 2px solid #0f4f40;
       border-radius: 14px;
-      background: #21846a;
+      background: #166f59;
       color: #ffffff;
       font: inherit;
       font-weight: 700;
@@ -879,8 +968,28 @@ function applyPopupStyles(): void {
       line-height: 1;
     }
 
+    .pool-card__text {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
     .pool-card__label {
       min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .pool-card__status {
+      width: fit-content;
+      max-width: 100%;
+      padding: 2px 7px;
+      border: 1px solid #8ea6c6;
+      border-radius: 999px;
+      background: #f4f8fd;
+      color: #30415f;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.3;
       overflow-wrap: anywhere;
     }
 
@@ -900,7 +1009,7 @@ function applyPopupStyles(): void {
     }
 
     .icon-button[aria-pressed="true"] {
-      border-color: #21846a;
+      border-color: #166f59;
       background: #dff5e8;
       color: #183f35;
     }

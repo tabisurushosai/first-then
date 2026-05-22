@@ -80,6 +80,57 @@
   "addStep": {
     "message": "ステップ追加"
   },
+  "selectedNow": {
+    "message": "いまに選択中"
+  },
+  "selectedNext": {
+    "message": "つぎに選択中"
+  },
+  "notSelected": {
+    "message": "未選択"
+  },
+  "selectNowAria": {
+    "message": "$card$ をいまに選ぶ"
+  },
+  "selectNextAria": {
+    "message": "$card$ をつぎに選ぶ"
+  },
+  "editCardAria": {
+    "message": "$card$ を編集する"
+  },
+  "deleteCardAria": {
+    "message": "$card$ を削除する"
+  },
+  "presetAria": {
+    "message": "プリセット $preset$ を使う"
+  },
+  "sequenceStepAria": {
+    "message": "連鎖の $number$ 番目: $card$"
+  },
+  "removeSequenceStepAria": {
+    "message": "連鎖の $number$ 番目を削除する"
+  },
+  "addSequenceStepAria": {
+    "message": "追加する連鎖ステップのカード"
+  },
+  "addStepAria": {
+    "message": "連鎖ステップを追加する"
+  },
+  "completeNowAria": {
+    "message": "いまのカードを完了して、つぎのカードへ進む"
+  },
+  "switchModeAria": {
+    "message": "$mode$ に切り替える"
+  },
+  "changePinAria": {
+    "message": "保護者PINを変更する"
+  },
+  "startTrialAria": {
+    "message": "Premiumの7日トライアルを開始する"
+  },
+  "stripeCheckoutAria": {
+    "message": "Stripeの購入ページを開く"
+  },
   "card_change_clothes": {
     "message": "きがえ"
   },

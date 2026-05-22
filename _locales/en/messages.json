@@ -80,6 +80,57 @@
   "addStep": {
     "message": "Add step"
   },
+  "selectedNow": {
+    "message": "Selected as now"
+  },
+  "selectedNext": {
+    "message": "Selected as next"
+  },
+  "notSelected": {
+    "message": "Not selected"
+  },
+  "selectNowAria": {
+    "message": "Select $card$ as now"
+  },
+  "selectNextAria": {
+    "message": "Select $card$ as next"
+  },
+  "editCardAria": {
+    "message": "Edit $card$"
+  },
+  "deleteCardAria": {
+    "message": "Delete $card$"
+  },
+  "presetAria": {
+    "message": "Use preset $preset$"
+  },
+  "sequenceStepAria": {
+    "message": "Chain step $number$: $card$"
+  },
+  "removeSequenceStepAria": {
+    "message": "Remove chain step $number$"
+  },
+  "addSequenceStepAria": {
+    "message": "Card for the added chain step"
+  },
+  "addStepAria": {
+    "message": "Add chain step"
+  },
+  "completeNowAria": {
+    "message": "Complete the current card and move to the next card"
+  },
+  "switchModeAria": {
+    "message": "Switch to $mode$"
+  },
+  "changePinAria": {
+    "message": "Change parent PIN"
+  },
+  "startTrialAria": {
+    "message": "Start the 7-day Premium trial"
+  },
+  "stripeCheckoutAria": {
+    "message": "Open the Stripe purchase page"
+  },
   "card_change_clothes": {
     "message": "Change clothes"
   },
