@@ -1,6 +1,8 @@
 import {
   addCardToPool,
   deletePoolCard,
+  selectNextCard,
+  selectNowCard,
   type Card,
   type CardInput,
   type PopupState,
@@ -40,9 +42,11 @@ function renderBigCard(title: string, card: Card): HTMLElement {
   return section;
 }
 
-function renderPoolCard(card: Card): HTMLElement {
+function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   const item = document.createElement("div");
   item.className = "pool-card";
+  item.dataset.selectedNow = String(state.now.id === card.id);
+  item.dataset.selectedNext = String(state.next.id === card.id);
 
   const emoji = document.createElement("span");
   emoji.className = "pool-card__emoji";
@@ -54,6 +58,22 @@ function renderPoolCard(card: Card): HTMLElement {
 
   const actions = document.createElement("div");
   actions.className = "pool-card__actions";
+
+  const nowButton = document.createElement("button");
+  nowButton.className = "icon-button";
+  nowButton.type = "button";
+  nowButton.textContent = "いま";
+  nowButton.dataset.action = "select-now";
+  nowButton.dataset.cardId = card.id;
+  nowButton.setAttribute("aria-pressed", String(state.now.id === card.id));
+
+  const nextButton = document.createElement("button");
+  nextButton.className = "icon-button";
+  nextButton.type = "button";
+  nextButton.textContent = "つぎ";
+  nextButton.dataset.action = "select-next";
+  nextButton.dataset.cardId = card.id;
+  nextButton.setAttribute("aria-pressed", String(state.next.id === card.id));
 
   const editButton = document.createElement("button");
   editButton.className = "icon-button";
@@ -69,7 +89,7 @@ function renderPoolCard(card: Card): HTMLElement {
   deleteButton.dataset.action = "delete";
   deleteButton.dataset.cardId = card.id;
 
-  actions.append(editButton, deleteButton);
+  actions.append(nowButton, nextButton, editButton, deleteButton);
   item.append(emoji, label, actions);
   return item;
 }
@@ -148,6 +168,16 @@ async function handlePoolAction(event: MouseEvent): Promise<void> {
     return;
   }
 
+  if (action === "select-now") {
+    await saveAndRender(selectNowCard(currentState, cardId));
+    return;
+  }
+
+  if (action === "select-next") {
+    await saveAndRender(selectNextCard(currentState, cardId));
+    return;
+  }
+
   if (action === "edit") {
     const card = findCard(currentState, cardId);
 
@@ -199,7 +229,7 @@ function renderPopupState(state: PopupState): void {
   poolGrid.addEventListener("click", (event) => {
     void handlePoolAction(event);
   });
-  state.pool.forEach((card) => poolGrid.append(renderPoolCard(card)));
+  state.pool.forEach((card) => poolGrid.append(renderPoolCard(card, state)));
 
   poolSection.append(poolTitle, form, poolGrid);
   root.append(stage, poolSection);
@@ -349,6 +379,8 @@ function applyPopupStyles(): void {
     .pool-card__actions {
       display: flex;
       gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .icon-button {
@@ -357,6 +389,12 @@ function applyPopupStyles(): void {
       background: #ffffff;
       color: #1d2433;
       font-size: 12px;
+    }
+
+    .icon-button[aria-pressed="true"] {
+      border-color: #2f5d50;
+      background: #dcebe5;
+      color: #1d2433;
     }
   `;
   document.head.append(style);

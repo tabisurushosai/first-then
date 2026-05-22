@@ -77,6 +77,36 @@ export function updatePoolCard(state: PopupState, cardId: string, input: CardInp
   };
 }
 
+function findPoolCard(state: PopupState, cardId: string): Card | null {
+  return state.pool.find((card) => card.id === cardId) ?? null;
+}
+
+export function selectNowCard(state: PopupState, cardId: string): PopupState {
+  const card = findPoolCard(state, cardId);
+
+  if (!card) {
+    return state;
+  }
+
+  return {
+    ...state,
+    now: card,
+  };
+}
+
+export function selectNextCard(state: PopupState, cardId: string): PopupState {
+  const card = findPoolCard(state, cardId);
+
+  if (!card) {
+    return state;
+  }
+
+  return {
+    ...state,
+    next: card,
+  };
+}
+
 export function deletePoolCard(state: PopupState, cardId: string): PopupState {
   if (state.pool.length <= 2) {
     return state;
