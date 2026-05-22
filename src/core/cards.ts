@@ -10,6 +10,11 @@ export interface PopupState {
   pool: Card[];
 }
 
+export interface CardInput {
+  emoji: string;
+  label: string;
+}
+
 export const initialCards: Card[] = [
   { id: "change-clothes", emoji: "👕", label: "きがえ" },
   { id: "breakfast", emoji: "🍙", label: "あさごはん" },
@@ -28,5 +33,64 @@ export function createInitialPopupState(cards: Card[] = initialCards): PopupStat
     now,
     next,
     pool: [now, next, ...rest],
+  };
+}
+
+export function normalizeCardInput(input: CardInput): CardInput | null {
+  const emoji = input.emoji.trim();
+  const label = input.label.trim();
+
+  if (!emoji || !label) {
+    return null;
+  }
+
+  return { emoji, label };
+}
+
+export function addCardToPool(state: PopupState, input: CardInput, id: string): PopupState {
+  const normalizedInput = normalizeCardInput(input);
+
+  if (!normalizedInput) {
+    return state;
+  }
+
+  return {
+    ...state,
+    pool: [...state.pool, { id, ...normalizedInput }],
+  };
+}
+
+export function updatePoolCard(state: PopupState, cardId: string, input: CardInput): PopupState {
+  const normalizedInput = normalizeCardInput(input);
+
+  if (!normalizedInput) {
+    return state;
+  }
+
+  const updateCard = (card: Card): Card =>
+    card.id === cardId ? { ...card, ...normalizedInput } : card;
+
+  return {
+    now: updateCard(state.now),
+    next: updateCard(state.next),
+    pool: state.pool.map(updateCard),
+  };
+}
+
+export function deletePoolCard(state: PopupState, cardId: string): PopupState {
+  if (state.pool.length <= 2) {
+    return state;
+  }
+
+  const pool = state.pool.filter((card) => card.id !== cardId);
+
+  if (pool.length === state.pool.length || pool.length < 2) {
+    return state;
+  }
+
+  return {
+    now: state.now.id === cardId ? pool[0] : state.now,
+    next: state.next.id === cardId ? pool[1] : state.next,
+    pool,
   };
 }
