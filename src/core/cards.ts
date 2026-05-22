@@ -1,3 +1,5 @@
+import { presetCards, type FirstThenPreset } from "./presets";
+
 export interface Card {
   id: string;
   emoji: string;
@@ -15,12 +17,7 @@ export interface CardInput {
   label: string;
 }
 
-export const initialCards: Card[] = [
-  { id: "change-clothes", emoji: "👕", label: "きがえ" },
-  { id: "breakfast", emoji: "🍙", label: "あさごはん" },
-  { id: "brush-teeth", emoji: "🪥", label: "はみがき" },
-  { id: "go-out", emoji: "🎒", label: "おでかけ" },
-];
+export const initialCards: Card[] = presetCards;
 
 export function createInitialPopupState(cards: Card[] = initialCards): PopupState {
   const [now, next, ...rest] = cards;
@@ -111,6 +108,21 @@ export function completeNowCard(state: PopupState): PopupState {
   return {
     ...state,
     now: state.next,
+  };
+}
+
+export function applyFirstThenPreset(state: PopupState, preset: FirstThenPreset): PopupState {
+  const now = state.pool.find((card) => card.id === preset.nowCardId);
+  const next = state.pool.find((card) => card.id === preset.nextCardId);
+
+  if (!now || !next) {
+    return state;
+  }
+
+  return {
+    ...state,
+    now,
+    next,
   };
 }
 

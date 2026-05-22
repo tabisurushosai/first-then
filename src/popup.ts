@@ -1,5 +1,6 @@
 import {
   addCardToPool,
+  applyFirstThenPreset,
   completeNowCard,
   deletePoolCard,
   selectNextCard,
@@ -9,6 +10,7 @@ import {
   type PopupState,
   updatePoolCard,
 } from "./core/cards";
+import { firstThenPresets } from "./core/presets";
 import { loadPopupState, savePopupState } from "./core/state";
 import { store } from "./storage";
 
@@ -158,6 +160,23 @@ async function handleCompleteNow(): Promise<void> {
   await saveAndRender(completeNowCard(currentState));
 }
 
+async function handlePresetAction(event: MouseEvent): Promise<void> {
+  const target = event.target;
+
+  if (!currentState || !(target instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const presetId = target.dataset.presetId;
+  const preset = firstThenPresets.find((item) => item.id === presetId);
+
+  if (!preset) {
+    return;
+  }
+
+  await saveAndRender(applyFirstThenPreset(currentState, preset));
+}
+
 async function handlePoolAction(event: MouseEvent): Promise<void> {
   const target = event.target;
 
@@ -230,6 +249,29 @@ function renderPopupState(state: PopupState): void {
     void handleCompleteNow();
   });
 
+  const presetSection = document.createElement("section");
+  presetSection.className = "presets";
+
+  const presetTitle = document.createElement("h2");
+  presetTitle.textContent = "プリセット";
+
+  const presetGrid = document.createElement("div");
+  presetGrid.className = "preset-grid";
+  presetGrid.addEventListener("click", (event) => {
+    void handlePresetAction(event);
+  });
+
+  firstThenPresets.forEach((preset) => {
+    const button = document.createElement("button");
+    button.className = "preset-button";
+    button.type = "button";
+    button.textContent = preset.label;
+    button.dataset.presetId = preset.id;
+    presetGrid.append(button);
+  });
+
+  presetSection.append(presetTitle, presetGrid);
+
   const poolSection = document.createElement("section");
   poolSection.className = "pool";
 
@@ -249,7 +291,7 @@ function renderPopupState(state: PopupState): void {
   state.pool.forEach((card) => poolGrid.append(renderPoolCard(card, state)));
 
   poolSection.append(poolTitle, form, poolGrid);
-  root.append(stage, completeButton, poolSection);
+  root.append(stage, completeButton, presetSection, poolSection);
   app.replaceChildren(root);
 }
 
@@ -337,9 +379,29 @@ function applyPopupStyles(): void {
       cursor: pointer;
     }
 
+    .presets,
     .pool {
       display: grid;
       gap: 8px;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .preset-button {
+      min-height: 36px;
+      padding: 7px 10px;
+      border: 1px solid #c9c6ba;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #1d2433;
+      font: inherit;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
     }
 
     .card-form {
