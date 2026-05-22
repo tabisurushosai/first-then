@@ -1,4 +1,5 @@
 import { createInitialPopupState, type Card, type PopupState } from "./cards";
+import { defaultModeState, type AppMode } from "./mode";
 
 export const popupStateStorageKey = "popupState";
 
@@ -21,18 +22,53 @@ function isCard(value: unknown): value is Card {
   );
 }
 
+function isAppMode(value: unknown): value is AppMode {
+  return value === "parent" || value === "child";
+}
+
 export function isPopupState(value: unknown): value is PopupState {
   if (!value || typeof value !== "object") {
     return false;
   }
 
   const state = value as Record<string, unknown>;
-  return isCard(state.now) && isCard(state.next) && Array.isArray(state.pool) && state.pool.every(isCard);
+  return (
+    isCard(state.now) &&
+    isCard(state.next) &&
+    Array.isArray(state.pool) &&
+    state.pool.every(isCard) &&
+    isAppMode(state.mode) &&
+    (typeof state.parentPin === "string" || state.parentPin === null)
+  );
+}
+
+function normalizePopupState(value: unknown): PopupState {
+  if (isPopupState(value)) {
+    return value;
+  }
+
+  if (!value || typeof value !== "object") {
+    return createInitialPopupState();
+  }
+
+  const state = value as Record<string, unknown>;
+
+  if (!isCard(state.now) || !isCard(state.next) || !Array.isArray(state.pool) || !state.pool.every(isCard)) {
+    return createInitialPopupState();
+  }
+
+  return {
+    now: state.now,
+    next: state.next,
+    pool: state.pool,
+    mode: isAppMode(state.mode) ? state.mode : defaultModeState.mode,
+    parentPin: typeof state.parentPin === "string" ? state.parentPin : defaultModeState.parentPin,
+  };
 }
 
 export async function loadPopupState(store: StorePort): Promise<PopupState> {
   const savedState = await store.get<unknown>(popupStateStorageKey);
-  return isPopupState(savedState) ? savedState : createInitialPopupState();
+  return normalizePopupState(savedState);
 }
 
 export async function savePopupState(store: StorePort, state: PopupState): Promise<void> {

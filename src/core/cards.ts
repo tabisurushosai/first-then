@@ -1,4 +1,5 @@
 import { presetCards, type FirstThenPreset } from "./presets";
+import { defaultModeState, type AppMode } from "./mode";
 
 export interface Card {
   id: string;
@@ -10,6 +11,8 @@ export interface PopupState {
   now: Card;
   next: Card;
   pool: Card[];
+  mode: AppMode;
+  parentPin: string | null;
 }
 
 export interface CardInput {
@@ -30,6 +33,7 @@ export function createInitialPopupState(cards: Card[] = initialCards): PopupStat
     now,
     next,
     pool: [now, next, ...rest],
+    ...defaultModeState,
   };
 }
 
@@ -68,6 +72,7 @@ export function updatePoolCard(state: PopupState, cardId: string, input: CardInp
     card.id === cardId ? { ...card, ...normalizedInput } : card;
 
   return {
+    ...state,
     now: updateCard(state.now),
     next: updateCard(state.next),
     pool: state.pool.map(updateCard),
@@ -138,6 +143,7 @@ export function deletePoolCard(state: PopupState, cardId: string): PopupState {
   }
 
   return {
+    ...state,
     now: state.now.id === cardId ? pool[0] : state.now,
     next: state.next.id === cardId ? pool[1] : state.next,
     pool,

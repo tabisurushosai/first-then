@@ -10,6 +10,7 @@ import {
   type PopupState,
   updatePoolCard,
 } from "./core/cards";
+import { setParentPin, switchToChildMode, switchToParentMode } from "./core/mode";
 import { firstThenPresets } from "./core/presets";
 import { loadPopupState, savePopupState } from "./core/state";
 import { store } from "./storage";
@@ -160,6 +161,55 @@ async function handleCompleteNow(): Promise<void> {
   await saveAndRender(completeNowCard(currentState));
 }
 
+async function handleEnterChildMode(): Promise<void> {
+  if (!currentState) {
+    return;
+  }
+
+  const pin = window.prompt("保護者PINを設定してください", currentState.parentPin ?? "");
+
+  if (pin === null) {
+    return;
+  }
+
+  await saveAndRender(switchToChildMode(currentState, pin));
+}
+
+async function handleEnterParentMode(): Promise<void> {
+  if (!currentState) {
+    return;
+  }
+
+  const pin = window.prompt("保護者PIN");
+
+  if (pin === null) {
+    return;
+  }
+
+  const nextState = switchToParentMode(currentState, pin);
+
+  if (nextState === currentState) {
+    window.alert("PINが違います");
+    return;
+  }
+
+  await saveAndRender(nextState);
+}
+
+async function handleChangePin(): Promise<void> {
+  if (!currentState) {
+    return;
+  }
+
+  const pin = window.prompt("新しい保護者PIN", currentState.parentPin ?? "");
+
+  if (pin === null) {
+    return;
+  }
+
+  await saveAndRender(setParentPin(currentState, pin));
+}
+
 async function handlePresetAction(event: MouseEvent): Promise<void> {
   const target = event.target;
 
@@ -237,6 +287,38 @@ function renderPopupState(state: PopupState): void {
   const root = document.createElement("main");
   root.className = "popup";
 
+  const modeBar = document.createElement("header");
+  modeBar.className = "mode-bar";
+
+  const modeLabel = document.createElement("div");
+  modeLabel.className = "mode-bar__label";
+  modeLabel.textContent = state.mode === "parent" ? "保護者モード" : "子供モード";
+
+  const modeActions = document.createElement("div");
+  modeActions.className = "mode-bar__actions";
+
+  const modeButton = document.createElement("button");
+  modeButton.className = "mode-button";
+  modeButton.type = "button";
+  modeButton.textContent = state.mode === "parent" ? "子供モード" : "保護者モード";
+  modeButton.addEventListener("click", () => {
+    void (state.mode === "parent" ? handleEnterChildMode() : handleEnterParentMode());
+  });
+  modeActions.append(modeButton);
+
+  if (state.mode === "parent") {
+    const pinButton = document.createElement("button");
+    pinButton.className = "mode-button";
+    pinButton.type = "button";
+    pinButton.textContent = "PIN変更";
+    pinButton.addEventListener("click", () => {
+      void handleChangePin();
+    });
+    modeActions.append(pinButton);
+  }
+
+  modeBar.append(modeLabel, modeActions);
+
   const stage = document.createElement("div");
   stage.className = "stage";
   stage.append(renderBigCard("いま", state.now), renderBigCard("つぎ", state.next));
@@ -291,7 +373,12 @@ function renderPopupState(state: PopupState): void {
   state.pool.forEach((card) => poolGrid.append(renderPoolCard(card, state)));
 
   poolSection.append(poolTitle, form, poolGrid);
-  root.append(stage, completeButton, presetSection, poolSection);
+  root.append(modeBar, stage, completeButton);
+
+  if (state.mode === "parent") {
+    root.append(presetSection, poolSection);
+  }
+
   app.replaceChildren(root);
 }
 
@@ -333,6 +420,41 @@ function applyPopupStyles(): void {
     .popup {
       display: grid;
       gap: 14px;
+    }
+
+    .mode-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-bar__label {
+      min-width: 0;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .mode-bar__actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .mode-button {
+      min-height: 32px;
+      padding: 5px 9px;
+      border: 1px solid #817c70;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #1d2433;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     .stage {
