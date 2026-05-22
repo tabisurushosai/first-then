@@ -1,0 +1,14 @@
+# first-then TODO
+- [ ] T001: src/popup.ts に popup骨格(いま/つぎ の2枚表示 + カードプール)を構築
+- [ ] T1B: 保存は src/storage.ts の store(get/set/remove)経由に統一し、状態・ロジックは src/core/ に chrome.*/DOM 非依存で分離する(将来PWA移植のため)
+- [ ] T002: カードプールのCRUD(絵文字/ことば)を chrome.storage.local に保存・読込
+- [ ] T003: 「いま」「つぎ」に各1枚を選んで大きく表示
+- [ ] T004: 「いま」完了→「つぎ」を「いま」に送る送り操作
+- [ ] T005: プリセット(きがえ→あさごはん 等)を内蔵し初回から使える状態に
+- [ ] T006: 保護者/子供モード切替を簡易PIN(storage.local)で実装
+- [ ] T007: 起動時に storage.local から全状態を復元
+- [ ] T008: _locales ja/en を chrome.i18n で全UIに適用
+- [ ] T009: Premiumゲート(7日トライアル + Stripe Checkout URL)。無料は基本、Premiumで3ステップ連鎖+カード差し替え
+- [ ] T010: npm run build を通し ts/lint を解消
+- [ ] T011: release/first-then.zip 生成(node_modules除外)
+- [ ] T012: legal/PRIVACY.md と TERMS.md 作成(外部通信なし・データ収集なし・医療効果を主張しない)
