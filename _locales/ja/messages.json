@@ -1,1 +1,86 @@
-{ "extName": { "message": "つぎはこれ" }, "extDesc": { "message": "「いま これ → つぎ これ」の2枚絵カードで切り替えを支援。発達特性児・幼児向け。" } }
+{
+  "extName": {
+    "message": "つぎはこれ"
+  },
+  "extDesc": {
+    "message": "「いま これ → つぎ これ」の2枚絵カードで切り替えを支援。発達特性児・幼児向け。"
+  },
+  "now": {
+    "message": "いま"
+  },
+  "next": {
+    "message": "つぎ"
+  },
+  "edit": {
+    "message": "編集"
+  },
+  "delete": {
+    "message": "削除"
+  },
+  "emoji": {
+    "message": "絵文字"
+  },
+  "label": {
+    "message": "ことば"
+  },
+  "add": {
+    "message": "追加"
+  },
+  "setParentPinPrompt": {
+    "message": "保護者PINを設定してください"
+  },
+  "parentPinPrompt": {
+    "message": "保護者PIN"
+  },
+  "pinMismatch": {
+    "message": "PINが違います"
+  },
+  "newParentPinPrompt": {
+    "message": "新しい保護者PIN"
+  },
+  "parentMode": {
+    "message": "保護者モード"
+  },
+  "childMode": {
+    "message": "子供モード"
+  },
+  "changePin": {
+    "message": "PIN変更"
+  },
+  "completeNow": {
+    "message": "いまできた"
+  },
+  "presets": {
+    "message": "プリセット"
+  },
+  "cardPool": {
+    "message": "カードプール"
+  },
+  "card_change_clothes": {
+    "message": "きがえ"
+  },
+  "card_breakfast": {
+    "message": "あさごはん"
+  },
+  "card_brush_teeth": {
+    "message": "はみがき"
+  },
+  "card_go_out": {
+    "message": "おでかけ"
+  },
+  "card_bath": {
+    "message": "おふろ"
+  },
+  "card_sleep": {
+    "message": "ねる"
+  },
+  "preset_morning_change_breakfast": {
+    "message": "きがえ → あさごはん"
+  },
+  "preset_morning_brush_go": {
+    "message": "はみがき → おでかけ"
+  },
+  "preset_night_bath_sleep": {
+    "message": "おふろ → ねる"
+  }
+}

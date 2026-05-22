@@ -11,12 +11,33 @@ import {
   updatePoolCard,
 } from "./core/cards";
 import { setParentPin, switchToChildMode, switchToParentMode } from "./core/mode";
-import { firstThenPresets } from "./core/presets";
+import { firstThenPresets, presetCards } from "./core/presets";
 import { loadPopupState, savePopupState } from "./core/state";
 import { store } from "./storage";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 let currentState: PopupState | null = null;
+
+function t(messageName: string): string {
+  const message = chrome.i18n.getMessage(messageName);
+  return message || messageName;
+}
+
+function localizedPresetLabel(presetId: string, fallback: string): string {
+  const message = chrome.i18n.getMessage(`preset_${presetId.replace(/-/g, "_")}`);
+  return message || fallback;
+}
+
+function localizedCardLabel(card: Card): string {
+  const presetCard = presetCards.find((item) => item.id === card.id);
+
+  if (!presetCard || presetCard.label !== card.label) {
+    return card.label;
+  }
+
+  const message = chrome.i18n.getMessage(`card_${card.id.replace(/-/g, "_")}`);
+  return message || card.label;
+}
 
 function createCardId(): string {
   if (typeof crypto.randomUUID === "function") {
@@ -40,7 +61,7 @@ function renderBigCard(title: string, card: Card): HTMLElement {
 
   const label = document.createElement("div");
   label.className = "stage-card__label";
-  label.textContent = card.label;
+  label.textContent = localizedCardLabel(card);
 
   section.append(heading, emoji, label);
   return section;
@@ -58,7 +79,7 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
 
   const label = document.createElement("span");
   label.className = "pool-card__label";
-  label.textContent = card.label;
+  label.textContent = localizedCardLabel(card);
 
   const actions = document.createElement("div");
   actions.className = "pool-card__actions";
@@ -66,7 +87,7 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   const nowButton = document.createElement("button");
   nowButton.className = "icon-button";
   nowButton.type = "button";
-  nowButton.textContent = "いま";
+  nowButton.textContent = t("now");
   nowButton.dataset.action = "select-now";
   nowButton.dataset.cardId = card.id;
   nowButton.setAttribute("aria-pressed", String(state.now.id === card.id));
@@ -74,7 +95,7 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   const nextButton = document.createElement("button");
   nextButton.className = "icon-button";
   nextButton.type = "button";
-  nextButton.textContent = "つぎ";
+  nextButton.textContent = t("next");
   nextButton.dataset.action = "select-next";
   nextButton.dataset.cardId = card.id;
   nextButton.setAttribute("aria-pressed", String(state.next.id === card.id));
@@ -82,14 +103,14 @@ function renderPoolCard(card: Card, state: PopupState): HTMLElement {
   const editButton = document.createElement("button");
   editButton.className = "icon-button";
   editButton.type = "button";
-  editButton.textContent = "編集";
+  editButton.textContent = t("edit");
   editButton.dataset.action = "edit";
   editButton.dataset.cardId = card.id;
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "icon-button";
   deleteButton.type = "button";
-  deleteButton.textContent = "削除";
+  deleteButton.textContent = t("delete");
   deleteButton.dataset.action = "delete";
   deleteButton.dataset.cardId = card.id;
 
@@ -105,20 +126,20 @@ function renderCardForm(): HTMLFormElement {
   const emojiInput = document.createElement("input");
   emojiInput.name = "emoji";
   emojiInput.type = "text";
-  emojiInput.placeholder = "絵文字";
-  emojiInput.setAttribute("aria-label", "絵文字");
+  emojiInput.placeholder = t("emoji");
+  emojiInput.setAttribute("aria-label", t("emoji"));
   emojiInput.required = true;
 
   const labelInput = document.createElement("input");
   labelInput.name = "label";
   labelInput.type = "text";
-  labelInput.placeholder = "ことば";
-  labelInput.setAttribute("aria-label", "ことば");
+  labelInput.placeholder = t("label");
+  labelInput.setAttribute("aria-label", t("label"));
   labelInput.required = true;
 
   const addButton = document.createElement("button");
   addButton.type = "submit";
-  addButton.textContent = "追加";
+  addButton.textContent = t("add");
 
   form.append(emojiInput, labelInput, addButton);
   return form;
@@ -166,7 +187,7 @@ async function handleEnterChildMode(): Promise<void> {
     return;
   }
 
-  const pin = window.prompt("保護者PINを設定してください", currentState.parentPin ?? "");
+  const pin = window.prompt(t("setParentPinPrompt"), currentState.parentPin ?? "");
 
   if (pin === null) {
     return;
@@ -180,7 +201,7 @@ async function handleEnterParentMode(): Promise<void> {
     return;
   }
 
-  const pin = window.prompt("保護者PIN");
+  const pin = window.prompt(t("parentPinPrompt"));
 
   if (pin === null) {
     return;
@@ -189,7 +210,7 @@ async function handleEnterParentMode(): Promise<void> {
   const nextState = switchToParentMode(currentState, pin);
 
   if (nextState === currentState) {
-    window.alert("PINが違います");
+    window.alert(t("pinMismatch"));
     return;
   }
 
@@ -201,7 +222,7 @@ async function handleChangePin(): Promise<void> {
     return;
   }
 
-  const pin = window.prompt("新しい保護者PIN", currentState.parentPin ?? "");
+  const pin = window.prompt(t("newParentPinPrompt"), currentState.parentPin ?? "");
 
   if (pin === null) {
     return;
@@ -263,13 +284,13 @@ async function handlePoolAction(event: MouseEvent): Promise<void> {
       return;
     }
 
-    const emoji = window.prompt("絵文字", card.emoji);
+    const emoji = window.prompt(t("emoji"), card.emoji);
 
     if (emoji === null) {
       return;
     }
 
-    const label = window.prompt("ことば", card.label);
+    const label = window.prompt(t("label"), localizedCardLabel(card));
 
     if (label === null) {
       return;
@@ -284,6 +305,9 @@ function renderPopupState(state: PopupState): void {
     return;
   }
 
+  document.documentElement.lang = chrome.i18n.getUILanguage().startsWith("ja") ? "ja" : "en";
+  document.title = t("extName");
+
   const root = document.createElement("main");
   root.className = "popup";
 
@@ -292,7 +316,7 @@ function renderPopupState(state: PopupState): void {
 
   const modeLabel = document.createElement("div");
   modeLabel.className = "mode-bar__label";
-  modeLabel.textContent = state.mode === "parent" ? "保護者モード" : "子供モード";
+  modeLabel.textContent = state.mode === "parent" ? t("parentMode") : t("childMode");
 
   const modeActions = document.createElement("div");
   modeActions.className = "mode-bar__actions";
@@ -300,7 +324,7 @@ function renderPopupState(state: PopupState): void {
   const modeButton = document.createElement("button");
   modeButton.className = "mode-button";
   modeButton.type = "button";
-  modeButton.textContent = state.mode === "parent" ? "子供モード" : "保護者モード";
+  modeButton.textContent = state.mode === "parent" ? t("childMode") : t("parentMode");
   modeButton.addEventListener("click", () => {
     void (state.mode === "parent" ? handleEnterChildMode() : handleEnterParentMode());
   });
@@ -310,7 +334,7 @@ function renderPopupState(state: PopupState): void {
     const pinButton = document.createElement("button");
     pinButton.className = "mode-button";
     pinButton.type = "button";
-    pinButton.textContent = "PIN変更";
+    pinButton.textContent = t("changePin");
     pinButton.addEventListener("click", () => {
       void handleChangePin();
     });
@@ -321,12 +345,12 @@ function renderPopupState(state: PopupState): void {
 
   const stage = document.createElement("div");
   stage.className = "stage";
-  stage.append(renderBigCard("いま", state.now), renderBigCard("つぎ", state.next));
+  stage.append(renderBigCard(t("now"), state.now), renderBigCard(t("next"), state.next));
 
   const completeButton = document.createElement("button");
   completeButton.className = "complete-button";
   completeButton.type = "button";
-  completeButton.textContent = "いまできた";
+  completeButton.textContent = t("completeNow");
   completeButton.addEventListener("click", () => {
     void handleCompleteNow();
   });
@@ -335,7 +359,7 @@ function renderPopupState(state: PopupState): void {
   presetSection.className = "presets";
 
   const presetTitle = document.createElement("h2");
-  presetTitle.textContent = "プリセット";
+  presetTitle.textContent = t("presets");
 
   const presetGrid = document.createElement("div");
   presetGrid.className = "preset-grid";
@@ -347,7 +371,7 @@ function renderPopupState(state: PopupState): void {
     const button = document.createElement("button");
     button.className = "preset-button";
     button.type = "button";
-    button.textContent = preset.label;
+    button.textContent = localizedPresetLabel(preset.id, preset.label);
     button.dataset.presetId = preset.id;
     presetGrid.append(button);
   });
@@ -358,7 +382,7 @@ function renderPopupState(state: PopupState): void {
   poolSection.className = "pool";
 
   const poolTitle = document.createElement("h2");
-  poolTitle.textContent = "カードプール";
+  poolTitle.textContent = t("cardPool");
 
   const form = renderCardForm();
   form.addEventListener("submit", (event) => {

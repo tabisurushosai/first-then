@@ -1,1 +1,86 @@
-{ "extName": { "message": "First Then" }, "extDesc": { "message": "A two-card 'first this, then this' board to ease transitions. For kids who need clear next steps." } }
+{
+  "extName": {
+    "message": "First Then"
+  },
+  "extDesc": {
+    "message": "A two-card 'first this, then this' board to ease transitions. For kids who need clear next steps."
+  },
+  "now": {
+    "message": "Now"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "edit": {
+    "message": "Edit"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "emoji": {
+    "message": "Emoji"
+  },
+  "label": {
+    "message": "Word"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "setParentPinPrompt": {
+    "message": "Set parent PIN"
+  },
+  "parentPinPrompt": {
+    "message": "Parent PIN"
+  },
+  "pinMismatch": {
+    "message": "Incorrect PIN"
+  },
+  "newParentPinPrompt": {
+    "message": "New parent PIN"
+  },
+  "parentMode": {
+    "message": "Parent mode"
+  },
+  "childMode": {
+    "message": "Child mode"
+  },
+  "changePin": {
+    "message": "Change PIN"
+  },
+  "completeNow": {
+    "message": "Now done"
+  },
+  "presets": {
+    "message": "Presets"
+  },
+  "cardPool": {
+    "message": "Card pool"
+  },
+  "card_change_clothes": {
+    "message": "Change clothes"
+  },
+  "card_breakfast": {
+    "message": "Breakfast"
+  },
+  "card_brush_teeth": {
+    "message": "Brush teeth"
+  },
+  "card_go_out": {
+    "message": "Go out"
+  },
+  "card_bath": {
+    "message": "Bath"
+  },
+  "card_sleep": {
+    "message": "Sleep"
+  },
+  "preset_morning_change_breakfast": {
+    "message": "Change clothes → Breakfast"
+  },
+  "preset_morning_brush_go": {
+    "message": "Brush teeth → Go out"
+  },
+  "preset_night_bath_sleep": {
+    "message": "Bath → Sleep"
+  }
+}
