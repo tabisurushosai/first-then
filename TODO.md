@@ -6,7 +6,7 @@
 - [x] T004: 「いま」完了→「つぎ」を「いま」に送る送り操作
 - [x] T005: プリセット(きがえ→あさごはん 等)を内蔵し初回から使える状態に
 - [x] T006: 保護者/子供モード切替を簡易PIN(storage.local)で実装
-- [ ] T007: 起動時に storage.local から全状態を復元
+- [x] T007: 起動時に storage.local から全状態を復元
 - [ ] T008: _locales ja/en を chrome.i18n で全UIに適用
 - [ ] T009: Premiumゲート(7日トライアル + Stripe Checkout URL)。無料は基本、Premiumで3ステップ連鎖+カード差し替え
 - [ ] T010: npm run build を通し ts/lint を解消

@@ -68,7 +68,13 @@ function normalizePopupState(value: unknown): PopupState {
 
 export async function loadPopupState(store: StorePort): Promise<PopupState> {
   const savedState = await store.get<unknown>(popupStateStorageKey);
-  return normalizePopupState(savedState);
+  const state = normalizePopupState(savedState);
+
+  if (!isPopupState(savedState)) {
+    await savePopupState(store, state);
+  }
+
+  return state;
 }
 
 export async function savePopupState(store: StorePort, state: PopupState): Promise<void> {
