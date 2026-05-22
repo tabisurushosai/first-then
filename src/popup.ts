@@ -568,7 +568,7 @@ function renderPopupState(state: PopupState): void {
   document.title = t("extName");
 
   const root = document.createElement("main");
-  root.className = "popup";
+  root.className = `popup popup--${state.mode}`;
 
   const modeBar = document.createElement("header");
   modeBar.className = "mode-bar";
@@ -1101,6 +1101,23 @@ function applyPopupStyles(): void {
       font-weight: 700;
       line-height: 1.2;
       overflow-wrap: anywhere;
+    }
+
+    .popup--child .stage {
+      grid-template-columns: 1fr;
+    }
+
+    .popup--child .stage-card {
+      min-height: 238px;
+      padding: 18px 14px 20px;
+    }
+
+    .popup--child .stage-card__emoji {
+      font-size: 104px;
+    }
+
+    .popup--child .stage-card__label {
+      font-size: 28px;
     }
 
     .complete-button {
