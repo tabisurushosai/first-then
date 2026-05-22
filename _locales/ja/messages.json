@@ -17,6 +17,9 @@
   "delete": {
     "message": "削除"
   },
+  "undo": {
+    "message": "取り消す"
+  },
   "emoji": {
     "message": "絵文字"
   },
@@ -80,6 +83,27 @@
   "addStep": {
     "message": "ステップ追加"
   },
+  "cardPoolEmpty": {
+    "message": "カードがまだありません。絵文字とことばを入れて追加してください。"
+  },
+  "presetEmpty": {
+    "message": "使えるプリセットがまだありません。"
+  },
+  "extraStepsEmpty": {
+    "message": "追加ステップはまだありません。"
+  },
+  "deleteCardConfirm": {
+    "message": "$card$ を削除しますか？"
+  },
+  "removeSequenceStepConfirm": {
+    "message": "連鎖の $number$ 番目を削除しますか？"
+  },
+  "cardDeletedUndo": {
+    "message": "$card$ を削除しました"
+  },
+  "sequenceStepRemovedUndo": {
+    "message": "連鎖の $number$ 番目を削除しました"
+  },
   "selectedNow": {
     "message": "いまに選択中"
   },
@@ -100,6 +124,9 @@
   },
   "deleteCardAria": {
     "message": "$card$ を削除する"
+  },
+  "undoAria": {
+    "message": "直前の削除を取り消す"
   },
   "presetAria": {
     "message": "プリセット $preset$ を使う"

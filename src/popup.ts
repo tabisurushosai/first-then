@@ -21,6 +21,12 @@ import { store } from "./storage";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 let currentState: PopupState | null = null;
+let pendingUndo: PendingUndo | null = null;
+
+interface PendingUndo {
+  message: string;
+  state: PopupState;
+}
 
 function t(messageName: string): string {
   const message = chrome.i18n.getMessage(messageName);
@@ -195,8 +201,9 @@ function renderCardForm(): HTMLFormElement {
   return form;
 }
 
-async function saveAndRender(state: PopupState): Promise<void> {
+async function saveAndRender(state: PopupState, undo: PendingUndo | null = null): Promise<void> {
   currentState = state;
+  pendingUndo = undo;
   await savePopupState(store, state);
   renderPopupState(state);
 }
@@ -211,6 +218,21 @@ function readCardInput(form: HTMLFormElement): CardInput {
 
 function findCard(state: PopupState, cardId: string): Card | null {
   return state.pool.find((card) => card.id === cardId) ?? null;
+}
+
+function renderEmptyState(message: string): HTMLParagraphElement {
+  const emptyState = document.createElement("p");
+  emptyState.className = "empty-state";
+  emptyState.textContent = message;
+  return emptyState;
+}
+
+async function handleUndo(): Promise<void> {
+  if (!pendingUndo) {
+    return;
+  }
+
+  await saveAndRender(pendingUndo.state);
 }
 
 async function handleAddCard(event: SubmitEvent): Promise<void> {
@@ -321,7 +343,17 @@ async function handleSequenceAction(event: Event): Promise<void> {
     const index = Number(target.dataset.sequenceIndex);
 
     if (Number.isInteger(index)) {
-      await saveAndRender(removeSequenceCard(currentState, index));
+      const nextState = removeSequenceCard(currentState, index);
+
+      if (
+        nextState !== currentState &&
+        window.confirm(interpolate("removeSequenceStepConfirm", { number: String(index + 1) }))
+      ) {
+        await saveAndRender(nextState, {
+          message: interpolate("sequenceStepRemovedUndo", { number: String(index + 1) }),
+          state: currentState,
+        });
+      }
     }
 
     return;
@@ -382,7 +414,24 @@ async function handlePoolAction(event: MouseEvent): Promise<void> {
   }
 
   if (action === "delete") {
-    await saveAndRender(deletePoolCard(currentState, cardId));
+    const card = findCard(currentState, cardId);
+
+    if (!card) {
+      return;
+    }
+
+    const nextState = deletePoolCard(currentState, cardId);
+
+    if (
+      nextState !== currentState &&
+      window.confirm(interpolate("deleteCardConfirm", { card: cardAccessibleName(card) }))
+    ) {
+      await saveAndRender(nextState, {
+        message: interpolate("cardDeletedUndo", { card: cardAccessibleName(card) }),
+        state: currentState,
+      });
+    }
+
     return;
   }
 
@@ -482,6 +531,8 @@ function renderPopupState(state: PopupState): void {
     void handleCompleteNow();
   });
 
+  const undoNotice = renderUndoNotice();
+
   const presetSection = document.createElement("section");
   presetSection.className = "presets";
 
@@ -504,6 +555,10 @@ function renderPopupState(state: PopupState): void {
     presetGrid.append(button);
   });
 
+  if (firstThenPresets.length === 0) {
+    presetGrid.append(renderEmptyState(t("presetEmpty")));
+  }
+
   presetSection.append(presetTitle, presetGrid);
 
   const poolSection = document.createElement("section");
@@ -522,18 +577,50 @@ function renderPopupState(state: PopupState): void {
   poolGrid.addEventListener("click", (event) => {
     void handlePoolAction(event);
   });
-  state.pool.forEach((card) => poolGrid.append(renderPoolCard(card, state)));
+  if (state.pool.length === 0) {
+    poolGrid.append(renderEmptyState(t("cardPoolEmpty")));
+  } else {
+    state.pool.forEach((card) => poolGrid.append(renderPoolCard(card, state)));
+  }
 
   poolSection.append(poolTitle, form, poolGrid);
 
   const premiumSection = renderPremiumSection(state);
   root.append(modeBar, stage, completeButton);
+  if (undoNotice) {
+    root.append(undoNotice);
+  }
 
   if (state.mode === "parent") {
     root.append(premiumSection, presetSection, poolSection);
   }
 
   app.replaceChildren(root);
+}
+
+function renderUndoNotice(): HTMLElement | null {
+  if (!pendingUndo) {
+    return null;
+  }
+
+  const notice = document.createElement("aside");
+  notice.className = "undo-notice";
+  notice.setAttribute("role", "status");
+  notice.setAttribute("aria-live", "polite");
+
+  const message = document.createElement("span");
+  message.textContent = pendingUndo.message;
+
+  const undoButton = document.createElement("button");
+  undoButton.type = "button";
+  undoButton.textContent = t("undo");
+  undoButton.setAttribute("aria-label", t("undoAria"));
+  undoButton.addEventListener("click", () => {
+    void handleUndo();
+  });
+
+  notice.append(message, undoButton);
+  return notice;
 }
 
 function renderPremiumSection(state: PopupState): HTMLElement {
@@ -631,6 +718,10 @@ function renderPremiumSection(state: PopupState): HTMLElement {
 
     sequenceList.append(row);
   });
+
+  if (state.sequence.length <= 2) {
+    sequenceList.append(renderEmptyState(t("extraStepsEmpty")));
+  }
 
   const addForm = document.createElement("form");
   addForm.className = "sequence-add";
@@ -828,6 +919,40 @@ function applyPopupStyles(): void {
       color: #4a5870;
       font-size: 13px;
       line-height: 1.4;
+    }
+
+    .empty-state {
+      margin: 0;
+      color: #4a5870;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .undo-notice {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 2px solid #cad7e8;
+      border-radius: 16px;
+      background: #ffffff;
+      color: #243044;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 3px 10px rgba(77, 106, 142, 0.08);
+    }
+
+    .undo-notice button {
+      min-height: 36px;
+      padding: 6px 10px;
+      border: 2px solid #0f4f40;
+      border-radius: 12px;
+      background: #166f59;
+      color: #ffffff;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
     }
 
     .premium__actions,

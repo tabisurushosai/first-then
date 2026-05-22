@@ -17,6 +17,9 @@
   "delete": {
     "message": "Delete"
   },
+  "undo": {
+    "message": "Undo"
+  },
   "emoji": {
     "message": "Emoji"
   },
@@ -80,6 +83,27 @@
   "addStep": {
     "message": "Add step"
   },
+  "cardPoolEmpty": {
+    "message": "No cards yet. Add an emoji and word to make one."
+  },
+  "presetEmpty": {
+    "message": "No presets are available yet."
+  },
+  "extraStepsEmpty": {
+    "message": "No extra steps yet."
+  },
+  "deleteCardConfirm": {
+    "message": "Delete $card$?"
+  },
+  "removeSequenceStepConfirm": {
+    "message": "Delete chain step $number$?"
+  },
+  "cardDeletedUndo": {
+    "message": "Deleted $card$"
+  },
+  "sequenceStepRemovedUndo": {
+    "message": "Deleted chain step $number$"
+  },
   "selectedNow": {
     "message": "Selected as now"
   },
@@ -100,6 +124,9 @@
   },
   "deleteCardAria": {
     "message": "Delete $card$"
+  },
+  "undoAria": {
+    "message": "Undo the last deletion"
   },
   "presetAria": {
     "message": "Use preset $preset$"
