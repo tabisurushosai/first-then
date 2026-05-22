@@ -8,11 +8,18 @@ export interface Card {
   label: string;
 }
 
+export interface SavedPair {
+  id: string;
+  nowCardId: string;
+  nextCardId: string;
+}
+
 export interface PopupState {
   now: Card;
   next: Card;
   sequence: Card[];
   pool: Card[];
+  savedPairs: SavedPair[];
   mode: AppMode;
   parentPin: string | null;
   premium: PremiumState;
@@ -37,6 +44,7 @@ export function createInitialPopupState(cards: Card[] = initialCards): PopupStat
     next,
     sequence: [now, next],
     pool: [now, next, ...rest],
+    savedPairs: [],
     ...defaultModeState,
     premium: defaultPremiumState,
   };
@@ -146,6 +154,59 @@ export function applyFirstThenPreset(state: PopupState, preset: FirstThenPreset)
   };
 }
 
+export function saveCurrentPair(state: PopupState, pairId: string): PopupState {
+  const duplicate = state.savedPairs.some(
+    (pair) => pair.nowCardId === state.now.id && pair.nextCardId === state.next.id,
+  );
+
+  if (duplicate) {
+    return state;
+  }
+
+  return {
+    ...state,
+    savedPairs: [
+      ...state.savedPairs,
+      { id: pairId, nowCardId: state.now.id, nextCardId: state.next.id },
+    ],
+  };
+}
+
+export function applySavedPair(state: PopupState, pairId: string): PopupState {
+  const pair = state.savedPairs.find((item) => item.id === pairId);
+
+  if (!pair) {
+    return state;
+  }
+
+  const now = state.pool.find((card) => card.id === pair.nowCardId);
+  const next = state.pool.find((card) => card.id === pair.nextCardId);
+
+  if (!now || !next) {
+    return state;
+  }
+
+  return {
+    ...state,
+    now,
+    next,
+    sequence: [now, next, ...state.sequence.slice(2)],
+  };
+}
+
+export function deleteSavedPair(state: PopupState, pairId: string): PopupState {
+  const savedPairs = state.savedPairs.filter((pair) => pair.id !== pairId);
+
+  if (savedPairs.length === state.savedPairs.length) {
+    return state;
+  }
+
+  return {
+    ...state,
+    savedPairs,
+  };
+}
+
 export function replaceSequenceCard(
   state: PopupState,
   index: number,
@@ -228,6 +289,9 @@ export function deletePoolCard(state: PopupState, cardId: string): PopupState {
 
       return pool[index] ?? pool[1] ?? pool[0];
     }),
+    savedPairs: state.savedPairs.filter(
+      (pair) => pair.nowCardId !== cardId && pair.nextCardId !== cardId,
+    ),
     pool,
   };
 }

@@ -1,16 +1,20 @@
 import {
   addCardToPool,
   appendSequenceCard,
+  applySavedPair,
   applyFirstThenPreset,
   completeNowCard,
   deletePoolCard,
+  deleteSavedPair,
   removeSequenceCard,
   replaceSequenceCard,
+  saveCurrentPair,
   selectNextCard,
   selectNowCard,
   type Card,
   type CardInput,
   type PopupState,
+  type SavedPair,
   updatePoolCard,
 } from "./core/cards";
 import { createCompletionCelebration, type CompletionCelebration } from "./core/celebration";
@@ -68,6 +72,35 @@ function createCardId(): string {
   }
 
   return `card-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function createPairId(): string {
+  if (typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `pair-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function findPairCard(state: PopupState, cardId: string): Card | null {
+  return state.pool.find((card) => card.id === cardId) ?? null;
+}
+
+function pairAccessibleName(state: PopupState, pair: SavedPair): string {
+  const now = findPairCard(state, pair.nowCardId);
+  const next = findPairCard(state, pair.nextCardId);
+
+  if (!now || !next) {
+    return t("savedPairMissing");
+  }
+
+  return `${cardAccessibleName(now)} ${t("pairArrow")} ${cardAccessibleName(next)}`;
+}
+
+function isCurrentPairSaved(state: PopupState): boolean {
+  return state.savedPairs.some(
+    (pair) => pair.nowCardId === state.now.id && pair.nextCardId === state.next.id,
+  );
 }
 
 function renderBigCard(title: string, card: Card): HTMLElement {
@@ -411,6 +444,52 @@ async function handlePresetAction(event: MouseEvent): Promise<void> {
   await saveAndRender(applyFirstThenPreset(currentState, preset));
 }
 
+async function handleSaveCurrentPair(): Promise<void> {
+  if (!currentState) {
+    return;
+  }
+
+  await saveAndRender(saveCurrentPair(currentState, createPairId()));
+}
+
+async function handleSavedPairAction(event: MouseEvent): Promise<void> {
+  const target = event.target;
+
+  if (!currentState || !(target instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const pairId = target.dataset.pairId;
+
+  if (!pairId) {
+    return;
+  }
+
+  if (target.dataset.action === "delete-pair") {
+    const pair = currentState.savedPairs.find((item) => item.id === pairId);
+
+    if (!pair) {
+      return;
+    }
+
+    const nextState = deleteSavedPair(currentState, pairId);
+
+    if (
+      nextState !== currentState &&
+      window.confirm(interpolate("deleteSavedPairConfirm", { pair: pairAccessibleName(currentState, pair) }))
+    ) {
+      await saveAndRender(nextState, {
+        message: interpolate("savedPairDeletedUndo", { pair: pairAccessibleName(currentState, pair) }),
+        state: currentState,
+      });
+    }
+
+    return;
+  }
+
+  await saveAndRender(applySavedPair(currentState, pairId));
+}
+
 async function handlePoolAction(event: MouseEvent): Promise<void> {
   const target = event.target;
 
@@ -574,6 +653,7 @@ function renderPopupState(state: PopupState): void {
 
   presetSection.append(presetTitle, presetGrid);
 
+  const savedPairsSection = renderSavedPairsSection(state);
   const poolSection = document.createElement("section");
   poolSection.className = "pool";
 
@@ -608,10 +688,85 @@ function renderPopupState(state: PopupState): void {
   }
 
   if (state.mode === "parent") {
-    root.append(premiumSection, presetSection, poolSection);
+    root.append(premiumSection, savedPairsSection, presetSection, poolSection);
   }
 
   app.replaceChildren(root);
+}
+
+function renderSavedPairsSection(state: PopupState): HTMLElement {
+  const section = document.createElement("section");
+  section.className = "saved-pairs";
+
+  const title = document.createElement("h2");
+  title.textContent = t("savedPairs");
+
+  const saveButton = document.createElement("button");
+  saveButton.className = "save-pair-button";
+  saveButton.type = "button";
+  saveButton.textContent = isCurrentPairSaved(state) ? t("savedPairAlreadySaved") : t("saveCurrentPair");
+  saveButton.disabled = isCurrentPairSaved(state);
+  saveButton.setAttribute(
+    "aria-label",
+    interpolate("saveCurrentPairAria", {
+      pair: `${cardAccessibleName(state.now)} ${t("pairArrow")} ${cardAccessibleName(state.next)}`,
+    }),
+  );
+  saveButton.addEventListener("click", () => {
+    void handleSaveCurrentPair();
+  });
+
+  const list = document.createElement("div");
+  list.className = "saved-pair-list";
+  list.addEventListener("click", (event) => {
+    void handleSavedPairAction(event);
+  });
+
+  const availablePairs = state.savedPairs.filter(
+    (pair) => findPairCard(state, pair.nowCardId) && findPairCard(state, pair.nextCardId),
+  );
+
+  if (availablePairs.length === 0) {
+    list.append(renderEmptyState(t("savedPairsEmpty")));
+  } else {
+    availablePairs.forEach((pair) => {
+      const row = document.createElement("div");
+      row.className = "saved-pair-row";
+
+      const applyButton = document.createElement("button");
+      applyButton.className = "saved-pair-button";
+      applyButton.type = "button";
+      applyButton.dataset.pairId = pair.id;
+      applyButton.setAttribute(
+        "aria-label",
+        interpolate("useSavedPairAria", { pair: pairAccessibleName(state, pair) }),
+      );
+
+      const now = findPairCard(state, pair.nowCardId);
+      const next = findPairCard(state, pair.nextCardId);
+
+      if (now && next) {
+        applyButton.textContent = `${now.emoji} ${localizedCardLabel(now)} ${t("pairArrow")} ${next.emoji} ${localizedCardLabel(next)}`;
+      }
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "saved-pair-delete";
+      deleteButton.type = "button";
+      deleteButton.textContent = t("delete");
+      deleteButton.dataset.action = "delete-pair";
+      deleteButton.dataset.pairId = pair.id;
+      deleteButton.setAttribute(
+        "aria-label",
+        interpolate("deleteSavedPairAria", { pair: pairAccessibleName(state, pair) }),
+      );
+
+      row.append(applyButton, deleteButton);
+      list.append(row);
+    });
+  }
+
+  section.append(title, saveButton, list);
+  return section;
 }
 
 function renderCompletionCelebration(): HTMLElement | null {
@@ -1043,6 +1198,7 @@ function applyPopupStyles(): void {
 
     .presets,
     .pool,
+    .saved-pairs,
     .premium {
       display: grid;
       gap: 10px;
@@ -1155,7 +1311,22 @@ function applyPopupStyles(): void {
       gap: 8px;
     }
 
-    .preset-button {
+    .saved-pair-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .saved-pair-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .preset-button,
+    .save-pair-button,
+    .saved-pair-button,
+    .saved-pair-delete {
       min-height: 44px;
       padding: 10px 12px;
       border: 2px solid #cad7e8;
@@ -1166,6 +1337,28 @@ function applyPopupStyles(): void {
       font-weight: 700;
       text-align: left;
       cursor: pointer;
+    }
+
+    .save-pair-button,
+    .saved-pair-delete {
+      text-align: center;
+    }
+
+    .save-pair-button {
+      border-color: #0f4f40;
+      background: #166f59;
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .save-pair-button:disabled {
+      cursor: default;
+      opacity: 0.62;
+    }
+
+    .saved-pair-delete {
+      border-color: #8ea6c6;
+      font-size: 12px;
     }
 
     .card-form {

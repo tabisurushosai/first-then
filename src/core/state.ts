@@ -1,4 +1,4 @@
-import { createInitialPopupState, type Card, type PopupState } from "./cards";
+import { createInitialPopupState, type Card, type PopupState, type SavedPair } from "./cards";
 import { defaultModeState, type AppMode } from "./mode";
 import { isPremiumState, normalizePremiumState } from "./premium";
 
@@ -25,6 +25,19 @@ function isCard(value: unknown): value is Card {
 
 function isAppMode(value: unknown): value is AppMode {
   return value === "parent" || value === "child";
+}
+
+function isSavedPair(value: unknown): value is SavedPair {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const pair = value as Record<string, unknown>;
+  return (
+    typeof pair.id === "string" &&
+    typeof pair.nowCardId === "string" &&
+    typeof pair.nextCardId === "string"
+  );
 }
 
 function normalizeCard(value: unknown): Card | null {
@@ -58,6 +71,33 @@ function compactCards(cards: Array<Card | null>): Card[] {
   return compacted;
 }
 
+function normalizeSavedPairs(value: unknown, pool: Card[]): SavedPair[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const poolIds = new Set(pool.map((card) => card.id));
+  const seenPairs = new Set<string>();
+  const pairs: SavedPair[] = [];
+
+  value.forEach((item) => {
+    if (!isSavedPair(item) || !poolIds.has(item.nowCardId) || !poolIds.has(item.nextCardId)) {
+      return;
+    }
+
+    const pairKey = `${item.nowCardId}\n${item.nextCardId}`;
+
+    if (seenPairs.has(pairKey)) {
+      return;
+    }
+
+    seenPairs.add(pairKey);
+    pairs.push(item);
+  });
+
+  return pairs;
+}
+
 function findCardById(cards: Card[], card: Card): Card | null {
   return cards.find((item) => item.id === card.id) ?? card;
 }
@@ -76,6 +116,8 @@ export function isPopupState(value: unknown): value is PopupState {
     state.sequence.every(isCard) &&
     Array.isArray(state.pool) &&
     state.pool.every(isCard) &&
+    Array.isArray(state.savedPairs) &&
+    state.savedPairs.every(isSavedPair) &&
     isAppMode(state.mode) &&
     (typeof state.parentPin === "string" || state.parentPin === null) &&
     isPremiumState(state.premium)
@@ -116,6 +158,7 @@ function normalizePopupState(value: unknown): PopupState {
     next,
     sequence: normalizedSequence,
     pool,
+    savedPairs: normalizeSavedPairs(state.savedPairs, pool),
     mode: isAppMode(state.mode) ? state.mode : defaultModeState.mode,
     parentPin: typeof state.parentPin === "string" ? state.parentPin : defaultModeState.parentPin,
     premium: normalizePremiumState(state.premium),

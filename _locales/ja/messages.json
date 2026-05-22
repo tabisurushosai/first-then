@@ -56,6 +56,15 @@
   "presets": {
     "message": "プリセット"
   },
+  "savedPairs": {
+    "message": "よく使うペア"
+  },
+  "saveCurrentPair": {
+    "message": "いまのペアを保存"
+  },
+  "savedPairAlreadySaved": {
+    "message": "保存済み"
+  },
   "cardPool": {
     "message": "カードプール"
   },
@@ -89,6 +98,15 @@
   "presetEmpty": {
     "message": "使えるプリセットがまだありません。"
   },
+  "savedPairsEmpty": {
+    "message": "よく使うペアはまだありません。"
+  },
+  "savedPairMissing": {
+    "message": "見つからないペア"
+  },
+  "pairArrow": {
+    "message": "→"
+  },
   "extraStepsEmpty": {
     "message": "追加ステップはまだありません。"
   },
@@ -98,8 +116,14 @@
   "removeSequenceStepConfirm": {
     "message": "連鎖の $number$ 番目を削除しますか？"
   },
+  "deleteSavedPairConfirm": {
+    "message": "$pair$ を削除しますか？"
+  },
   "cardDeletedUndo": {
     "message": "$card$ を削除しました"
+  },
+  "savedPairDeletedUndo": {
+    "message": "$pair$ を削除しました"
   },
   "sequenceStepRemovedUndo": {
     "message": "連鎖の $number$ 番目を削除しました"
@@ -130,6 +154,15 @@
   },
   "presetAria": {
     "message": "プリセット $preset$ を使う"
+  },
+  "saveCurrentPairAria": {
+    "message": "$pair$ をよく使うペアに保存する"
+  },
+  "useSavedPairAria": {
+    "message": "よく使うペア $pair$ を使う"
+  },
+  "deleteSavedPairAria": {
+    "message": "よく使うペア $pair$ を削除する"
   },
   "sequenceStepAria": {
     "message": "連鎖の $number$ 番目: $card$"

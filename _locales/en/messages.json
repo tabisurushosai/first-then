@@ -56,6 +56,15 @@
   "presets": {
     "message": "Presets"
   },
+  "savedPairs": {
+    "message": "Favorite pairs"
+  },
+  "saveCurrentPair": {
+    "message": "Save current pair"
+  },
+  "savedPairAlreadySaved": {
+    "message": "Saved"
+  },
   "cardPool": {
     "message": "Card pool"
   },
@@ -89,6 +98,15 @@
   "presetEmpty": {
     "message": "No presets are available yet."
   },
+  "savedPairsEmpty": {
+    "message": "No favorite pairs yet."
+  },
+  "savedPairMissing": {
+    "message": "Missing pair"
+  },
+  "pairArrow": {
+    "message": "→"
+  },
   "extraStepsEmpty": {
     "message": "No extra steps yet."
   },
@@ -98,8 +116,14 @@
   "removeSequenceStepConfirm": {
     "message": "Delete chain step $number$?"
   },
+  "deleteSavedPairConfirm": {
+    "message": "Delete $pair$?"
+  },
   "cardDeletedUndo": {
     "message": "Deleted $card$"
+  },
+  "savedPairDeletedUndo": {
+    "message": "Deleted $pair$"
   },
   "sequenceStepRemovedUndo": {
     "message": "Deleted chain step $number$"
@@ -130,6 +154,15 @@
   },
   "presetAria": {
     "message": "Use preset $preset$"
+  },
+  "saveCurrentPairAria": {
+    "message": "Save $pair$ as a favorite pair"
+  },
+  "useSavedPairAria": {
+    "message": "Use favorite pair $pair$"
+  },
+  "deleteSavedPairAria": {
+    "message": "Delete favorite pair $pair$"
   },
   "sequenceStepAria": {
     "message": "Chain step $number$: $card$"
