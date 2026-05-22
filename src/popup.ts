@@ -1,4 +1,6 @@
-import { createInitialPopupState, type Card } from "./core/cards";
+import { type Card, type PopupState } from "./core/cards";
+import { loadPopupState } from "./core/state";
+import { store } from "./storage";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -39,12 +41,11 @@ function renderPoolCard(card: Card): HTMLElement {
   return item;
 }
 
-function renderPopup(): void {
+function renderPopupState(state: PopupState): void {
   if (!app) {
     return;
   }
 
-  const state = createInitialPopupState();
   const root = document.createElement("main");
   root.className = "popup";
 
@@ -65,6 +66,11 @@ function renderPopup(): void {
   poolSection.append(poolTitle, poolGrid);
   root.append(stage, poolSection);
   app.replaceChildren(root);
+}
+
+async function renderPopup(): Promise<void> {
+  const state = await loadPopupState(store);
+  renderPopupState(state);
 }
 
 function applyPopupStyles(): void {
@@ -169,4 +175,4 @@ function applyPopupStyles(): void {
 }
 
 applyPopupStyles();
-renderPopup();
+void renderPopup();
