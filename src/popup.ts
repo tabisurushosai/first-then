@@ -602,40 +602,37 @@ function applyPopupStyles(): void {
   const style = document.createElement("style");
   style.textContent = `
     :root {
-      color: #1d2433;
-      background: #f7f7f4;
+      color: #243044;
+      background: #f8fbff;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body {
-      width: 360px;
+      width: 380px;
       margin: 0;
-      padding: 14px;
-      background: #f7f7f4;
+      padding: 16px;
+      background:
+        linear-gradient(180deg, #eaf6ff 0%, #f8fbff 42%, #fff7e8 100%);
       box-sizing: border-box;
-    }
-
-    h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      line-height: 1.25;
     }
 
     h2 {
       margin: 0;
-      font-size: 14px;
+      color: #30415f;
+      font-size: 15px;
       line-height: 1.3;
     }
 
     h3 {
       margin: 0;
-      font-size: 13px;
+      color: #30415f;
+      font-size: 14px;
       line-height: 1.3;
     }
 
     .popup {
       display: grid;
-      gap: 14px;
+      gap: 16px;
     }
 
     .mode-bar {
@@ -647,7 +644,7 @@ function applyPopupStyles(): void {
 
     .mode-bar__label {
       min-width: 0;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 800;
       line-height: 1.2;
       overflow-wrap: anywhere;
@@ -661,73 +658,86 @@ function applyPopupStyles(): void {
     }
 
     .mode-button {
-      min-height: 32px;
-      padding: 5px 9px;
-      border: 1px solid #817c70;
-      border-radius: 6px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 2px solid #8ea6c6;
+      border-radius: 14px;
       background: #ffffff;
-      color: #1d2433;
+      color: #243044;
       font: inherit;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 2px 0 rgba(36, 48, 68, 0.08);
     }
 
     .stage {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
     }
 
     .stage-card {
-      min-height: 156px;
+      min-height: 184px;
       display: grid;
       grid-template-rows: auto 1fr auto;
       align-items: center;
-      gap: 8px;
-      padding: 12px;
-      border: 2px solid #d7d5cb;
-      border-radius: 8px;
+      gap: 10px;
+      padding: 14px 12px 16px;
+      border: 3px solid #ffffff;
+      border-radius: 24px;
       background: #ffffff;
       box-sizing: border-box;
+      box-shadow: 0 8px 18px rgba(77, 106, 142, 0.14);
       text-align: center;
     }
 
+    .stage-card:first-child {
+      background: #fff4d8;
+      border-color: #ffd37a;
+    }
+
+    .stage-card:nth-child(2) {
+      background: #e9f8ee;
+      border-color: #94d7aa;
+    }
+
     .stage-card__emoji {
-      font-size: 52px;
+      font-size: 68px;
       line-height: 1;
     }
 
     .stage-card__label {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       line-height: 1.2;
       overflow-wrap: anywhere;
     }
 
     .complete-button {
-      min-height: 44px;
-      border: 1px solid #2f5d50;
-      border-radius: 8px;
-      background: #2f5d50;
+      min-height: 56px;
+      border: 2px solid #196a55;
+      border-radius: 20px;
+      background: #21846a;
       color: #ffffff;
       font: inherit;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 0 4px 0 #17624f;
     }
 
     .presets,
     .pool,
     .premium {
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
     .premium__status {
       margin: 0;
-      color: #4c463c;
-      font-size: 12px;
+      color: #4a5870;
+      font-size: 13px;
       line-height: 1.4;
     }
 
@@ -740,14 +750,14 @@ function applyPopupStyles(): void {
 
     .premium button,
     .sequence-row button {
-      min-height: 34px;
-      padding: 6px 10px;
-      border: 1px solid #817c70;
-      border-radius: 6px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 2px solid #8ea6c6;
+      border-radius: 14px;
       background: #ffffff;
-      color: #1d2433;
+      color: #243044;
       font: inherit;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -784,8 +794,8 @@ function applyPopupStyles(): void {
       min-width: 0;
       height: 34px;
       padding: 5px 8px;
-      border: 1px solid #c9c6ba;
-      border-radius: 6px;
+      border: 2px solid #cad7e8;
+      border-radius: 12px;
       background: #ffffff;
       color: inherit;
       font: inherit;
@@ -794,16 +804,16 @@ function applyPopupStyles(): void {
     .preset-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 6px;
+      gap: 8px;
     }
 
     .preset-button {
-      min-height: 36px;
-      padding: 7px 10px;
-      border: 1px solid #c9c6ba;
-      border-radius: 6px;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 2px solid #cad7e8;
+      border-radius: 16px;
       background: #ffffff;
-      color: #1d2433;
+      color: #243044;
       font: inherit;
       font-weight: 700;
       text-align: left;
@@ -812,17 +822,17 @@ function applyPopupStyles(): void {
 
     .card-form {
       display: grid;
-      grid-template-columns: 64px 1fr auto;
-      gap: 6px;
+      grid-template-columns: 72px 1fr auto;
+      gap: 8px;
       align-items: center;
     }
 
     .card-form input {
       min-width: 0;
-      height: 36px;
-      padding: 6px 8px;
-      border: 1px solid #c9c6ba;
-      border-radius: 6px;
+      height: 44px;
+      padding: 8px 10px;
+      border: 2px solid #cad7e8;
+      border-radius: 14px;
       box-sizing: border-box;
       background: #ffffff;
       color: inherit;
@@ -831,11 +841,11 @@ function applyPopupStyles(): void {
 
     .card-form button,
     .icon-button {
-      min-height: 34px;
-      padding: 6px 10px;
-      border: 1px solid #817c70;
-      border-radius: 6px;
-      background: #2f5d50;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 2px solid #196a55;
+      border-radius: 14px;
+      background: #21846a;
       color: #ffffff;
       font: inherit;
       font-weight: 700;
@@ -844,27 +854,28 @@ function applyPopupStyles(): void {
 
     .pool-grid {
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
     .pool-card {
-      min-height: 56px;
+      min-height: 68px;
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border: 1px solid #d7d5cb;
-      border-radius: 8px;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 2px solid #dce6f3;
+      border-radius: 18px;
       background: #ffffff;
       color: inherit;
       font: inherit;
       font-weight: 700;
       text-align: left;
+      box-shadow: 0 3px 10px rgba(77, 106, 142, 0.08);
     }
 
     .pool-card__emoji {
-      font-size: 28px;
+      font-size: 36px;
       line-height: 1;
     }
 
@@ -881,17 +892,17 @@ function applyPopupStyles(): void {
     }
 
     .icon-button {
-      min-height: 30px;
-      padding: 4px 8px;
+      min-height: 36px;
+      padding: 6px 10px;
       background: #ffffff;
-      color: #1d2433;
+      color: #243044;
       font-size: 12px;
     }
 
     .icon-button[aria-pressed="true"] {
-      border-color: #2f5d50;
-      background: #dcebe5;
-      color: #1d2433;
+      border-color: #21846a;
+      background: #dff5e8;
+      color: #183f35;
     }
   `;
   document.head.append(style);
