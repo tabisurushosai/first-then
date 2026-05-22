@@ -146,6 +146,12 @@
   "completeNowAria": {
     "message": "Complete the current card and move to the next card"
   },
+  "completionCelebration": {
+    "message": "You did it"
+  },
+  "completionCelebrationAria": {
+    "message": "$card$ is done"
+  },
   "switchModeAria": {
     "message": "Switch to $mode$"
   },

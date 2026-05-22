@@ -13,6 +13,7 @@ import {
   type PopupState,
   updatePoolCard,
 } from "./core/cards";
+import { createCompletionCelebration, type CompletionCelebration } from "./core/celebration";
 import { setParentPin, switchToChildMode, switchToParentMode } from "./core/mode";
 import { getPremiumAccess, startPremiumTrial, stripeCheckoutUrl } from "./core/premium";
 import { firstThenPresets, presetCards } from "./core/presets";
@@ -22,6 +23,7 @@ import { store } from "./storage";
 const app = document.querySelector<HTMLDivElement>("#app");
 let currentState: PopupState | null = null;
 let pendingUndo: PendingUndo | null = null;
+let activeCelebration: CompletionCelebration | null = null;
 
 interface PendingUndo {
   message: string;
@@ -201,9 +203,14 @@ function renderCardForm(): HTMLFormElement {
   return form;
 }
 
-async function saveAndRender(state: PopupState, undo: PendingUndo | null = null): Promise<void> {
+async function saveAndRender(
+  state: PopupState,
+  undo: PendingUndo | null = null,
+  celebration: CompletionCelebration | null = null,
+): Promise<void> {
   currentState = state;
   pendingUndo = undo;
+  activeCelebration = celebration;
   await savePopupState(store, state);
   renderPopupState(state);
 }
@@ -251,7 +258,12 @@ async function handleCompleteNow(): Promise<void> {
     return;
   }
 
-  await saveAndRender(completeNowCard(currentState));
+  const completedCard = currentState.now;
+  await saveAndRender(
+    completeNowCard(currentState),
+    null,
+    createCompletionCelebration(completedCard),
+  );
 }
 
 async function handleEnterChildMode(): Promise<void> {
@@ -531,6 +543,7 @@ function renderPopupState(state: PopupState): void {
     void handleCompleteNow();
   });
 
+  const celebration = renderCompletionCelebration();
   const undoNotice = renderUndoNotice();
 
   const presetSection = document.createElement("section");
@@ -587,6 +600,9 @@ function renderPopupState(state: PopupState): void {
 
   const premiumSection = renderPremiumSection(state);
   root.append(modeBar, stage, completeButton);
+  if (celebration) {
+    root.append(celebration);
+  }
   if (undoNotice) {
     root.append(undoNotice);
   }
@@ -596,6 +612,44 @@ function renderPopupState(state: PopupState): void {
   }
 
   app.replaceChildren(root);
+}
+
+function renderCompletionCelebration(): HTMLElement | null {
+  if (!activeCelebration) {
+    return null;
+  }
+
+  const notice = document.createElement("aside");
+  notice.className = "completion-celebration";
+  notice.setAttribute("role", "status");
+  notice.setAttribute("aria-live", "polite");
+  notice.setAttribute(
+    "aria-label",
+    interpolate("completionCelebrationAria", {
+      card: cardAccessibleName(activeCelebration.completedCard),
+    }),
+  );
+
+  const sparkleRow = document.createElement("div");
+  sparkleRow.className = "completion-celebration__sparkles";
+  sparkleRow.setAttribute("aria-hidden", "true");
+
+  activeCelebration.sparkles.forEach((sparkle) => {
+    const item = document.createElement("span");
+    item.textContent = sparkle;
+    sparkleRow.append(item);
+  });
+
+  const message = document.createElement("strong");
+  message.className = "completion-celebration__message";
+  message.textContent = t("completionCelebration");
+
+  const card = document.createElement("span");
+  card.className = "completion-celebration__card";
+  card.textContent = cardAccessibleName(activeCelebration.completedCard);
+
+  notice.append(sparkleRow, message, card);
+  return notice;
 }
 
 function renderUndoNotice(): HTMLElement | null {
@@ -905,6 +959,86 @@ function applyPopupStyles(): void {
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 4px 0 #0f4f40;
+    }
+
+    .completion-celebration {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      padding: 12px;
+      border: 2px solid #ffd37a;
+      border-radius: 20px;
+      background: #fff9ea;
+      color: #243044;
+      text-align: center;
+      box-shadow: 0 6px 16px rgba(77, 106, 142, 0.12);
+      animation: celebration-pop 520ms ease-out both;
+    }
+
+    .completion-celebration__sparkles {
+      display: flex;
+      gap: 12px;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .completion-celebration__sparkles span {
+      animation: sparkle-bounce 720ms ease-out both;
+    }
+
+    .completion-celebration__sparkles span:nth-child(2) {
+      animation-delay: 80ms;
+    }
+
+    .completion-celebration__sparkles span:nth-child(3) {
+      animation-delay: 160ms;
+    }
+
+    .completion-celebration__message {
+      font-size: 22px;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .completion-celebration__card {
+      color: #4a5870;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    @keyframes celebration-pop {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes sparkle-bounce {
+      0% {
+        transform: translateY(4px) scale(0.72);
+      }
+
+      55% {
+        transform: translateY(-5px) scale(1.12);
+      }
+
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .completion-celebration,
+      .completion-celebration__sparkles span {
+        animation: none;
+      }
     }
 
     .presets,

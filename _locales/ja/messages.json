@@ -146,6 +146,12 @@
   "completeNowAria": {
     "message": "いまのカードを完了して、つぎのカードへ進む"
   },
+  "completionCelebration": {
+    "message": "できたね"
+  },
+  "completionCelebrationAria": {
+    "message": "$card$ ができました"
+  },
   "switchModeAria": {
     "message": "$mode$ に切り替える"
   },
