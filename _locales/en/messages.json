@@ -53,6 +53,21 @@
   "completeNow": {
     "message": "Now done"
   },
+  "completeNowHint": {
+    "message": "Moves to next"
+  },
+  "quickGuideAria": {
+    "message": "Short guide"
+  },
+  "quickGuideStepNow": {
+    "message": "Look at now"
+  },
+  "quickGuideStepDone": {
+    "message": "Press done"
+  },
+  "quickGuideStepNext": {
+    "message": "Move next"
+  },
   "presets": {
     "message": "Presets"
   },

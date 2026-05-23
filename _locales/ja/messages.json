@@ -53,6 +53,21 @@
   "completeNow": {
     "message": "いまできた"
   },
+  "completeNowHint": {
+    "message": "押すとつぎへ"
+  },
+  "quickGuideAria": {
+    "message": "使い方の短い案内"
+  },
+  "quickGuideStepNow": {
+    "message": "いまを見る"
+  },
+  "quickGuideStepDone": {
+    "message": "できたら押す"
+  },
+  "quickGuideStepNext": {
+    "message": "つぎへ進む"
+  },
   "presets": {
     "message": "プリセット"
   },

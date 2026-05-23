@@ -269,6 +269,37 @@ function renderEmptyState(message: string): HTMLParagraphElement {
   return emptyState;
 }
 
+function renderQuickGuide(): HTMLElement {
+  const guide = document.createElement("section");
+  guide.className = "quick-guide";
+  guide.setAttribute("aria-label", t("quickGuideAria"));
+
+  const steps = [
+    ["1", t("quickGuideStepNow")],
+    ["2", t("quickGuideStepDone")],
+    ["3", t("quickGuideStepNext")],
+  ];
+
+  steps.forEach(([number, text]) => {
+    const item = document.createElement("div");
+    item.className = "quick-guide__item";
+
+    const badge = document.createElement("span");
+    badge.className = "quick-guide__badge";
+    badge.textContent = number;
+    badge.setAttribute("aria-hidden", "true");
+
+    const label = document.createElement("span");
+    label.className = "quick-guide__label";
+    label.textContent = text;
+
+    item.append(badge, label);
+    guide.append(item);
+  });
+
+  return guide;
+}
+
 async function handleUndo(): Promise<void> {
   if (!pendingUndo) {
     return;
@@ -619,6 +650,8 @@ function renderPopupState(state: PopupState): void {
 
   modeBar.append(modeLabel, modeActions);
 
+  const quickGuide = renderQuickGuide();
+
   const stage = document.createElement("div");
   stage.className = "stage";
   stage.append(renderBigCard(t("now"), state.now), renderBigCard(t("next"), state.next));
@@ -632,8 +665,17 @@ function renderPopupState(state: PopupState): void {
   const completeButton = document.createElement("button");
   completeButton.className = "complete-button";
   completeButton.type = "button";
-  completeButton.textContent = t("completeNow");
   completeButton.setAttribute("aria-label", t("completeNowAria"));
+
+  const completeButtonLabel = document.createElement("span");
+  completeButtonLabel.className = "complete-button__label";
+  completeButtonLabel.textContent = t("completeNow");
+
+  const completeButtonHint = document.createElement("span");
+  completeButtonHint.className = "complete-button__hint";
+  completeButtonHint.textContent = t("completeNowHint");
+
+  completeButton.append(completeButtonLabel, completeButtonHint);
   completeButton.addEventListener("click", () => {
     void handleCompleteNow();
   });
@@ -695,7 +737,7 @@ function renderPopupState(state: PopupState): void {
   poolSection.append(poolTitle, form, poolGrid);
 
   const premiumSection = renderPremiumSection(state);
-  root.append(modeBar, stage, completeButton);
+  root.append(modeBar, quickGuide, stage, completeButton);
   if (celebration) {
     root.append(celebration);
   }
@@ -1212,6 +1254,50 @@ function applyPopupStyles(): void {
       color: var(--color-primary-text);
     }
 
+    .quick-guide {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-sm);
+      padding: var(--space-sm);
+      border: 2px solid var(--color-border-soft);
+      border-radius: var(--radius-2xl);
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow-md);
+    }
+
+    .quick-guide__item {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      color: var(--color-heading);
+      font-size: var(--font-sm);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .quick-guide__badge {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: var(--radius-pill);
+      background: var(--color-primary);
+      color: var(--color-surface);
+      font-size: var(--font-sm);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .quick-guide__label {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
     .stage {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1311,6 +1397,10 @@ function applyPopupStyles(): void {
 
     .complete-button {
       min-height: 56px;
+      display: grid;
+      justify-items: center;
+      gap: 2px;
+      padding: var(--space-md) var(--space-lg);
       border: 2px solid var(--color-primary-dark);
       border-radius: var(--radius-2xl);
       background: var(--color-primary);
@@ -1320,6 +1410,18 @@ function applyPopupStyles(): void {
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 4px 0 var(--color-primary-dark);
+    }
+
+    .complete-button__label {
+      line-height: 1.15;
+    }
+
+    .complete-button__hint {
+      font-size: var(--font-sm);
+      font-weight: 800;
+      line-height: 1.2;
+      opacity: 0.9;
+      overflow-wrap: anywhere;
     }
 
     .complete-button:hover:not(:disabled) {
