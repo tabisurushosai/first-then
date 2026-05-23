@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="first-then icon">
+  <defs>
+    <linearGradient id="background" x1="18" y1="12" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF7E6"/>
+      <stop offset="1" stop-color="#DDF7F2"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#24545A" flood-opacity=".18"/>
+    </filter>
+  </defs>
+
+  <rect width="128" height="128" rx="28" fill="url(#background)"/>
+  <path d="M30 99C47 115 82 116 101 96" fill="none" stroke="#5FA6A0" stroke-width="8" stroke-linecap="round" opacity=".28"/>
+
+  <g filter="url(#shadow)">
+    <rect x="16" y="25" width="44" height="58" rx="13" fill="#FFFFFF" stroke="#2F6F73" stroke-width="4"/>
+    <circle cx="38" cy="48" r="13" fill="#F4A64E"/>
+    <path d="M28 67h20" stroke="#2F6F73" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <path d="M66 54h18" fill="none" stroke="#2F6F73" stroke-width="7" stroke-linecap="round"/>
+  <path d="M81 43l13 11-13 11" fill="none" stroke="#2F6F73" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="43" width="44" height="58" rx="13" fill="#FFFFFF" stroke="#2F6F73" stroke-width="4"/>
+    <path d="M94 57l4 11 12 1-9 7 3 12-10-7-10 7 3-12-9-7 12-1z" fill="#69C4BA" stroke="#2F6F73" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M84 86h20" stroke="#2F6F73" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>
