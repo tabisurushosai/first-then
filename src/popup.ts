@@ -1024,38 +1024,95 @@ function applyPopupStyles(): void {
   const style = document.createElement("style");
   style.textContent = `
     :root {
-      color: #243044;
-      background: #f8fbff;
+      --color-text: #243044;
+      --color-heading: #30415f;
+      --color-muted: #4a5870;
+      --color-surface: #ffffff;
+      --color-page: #f8fbff;
+      --color-page-start: #eaf6ff;
+      --color-page-end: #fff7e8;
+      --color-border: #cad7e8;
+      --color-border-strong: #8ea6c6;
+      --color-border-soft: #dce6f3;
+      --color-focus: #0b5cab;
+      --color-primary: #166f59;
+      --color-primary-dark: #0f4f40;
+      --color-primary-soft: #dff5e8;
+      --color-primary-text: #183f35;
+      --color-now: #fff4d8;
+      --color-now-border: #ffd37a;
+      --color-next: #e9f8ee;
+      --color-next-border: #94d7aa;
+      --color-preview: #eef4ff;
+      --color-preview-border: #a9bee8;
+      --color-chip: #f4f8fd;
+      --color-celebration: #fff9ea;
+      --space-2xs: 4px;
+      --space-xs: 6px;
+      --space-sm: 8px;
+      --space-md: 10px;
+      --space-lg: 12px;
+      --space-xl: 14px;
+      --space-2xl: 16px;
+      --space-3xl: 18px;
+      --radius-sm: 12px;
+      --radius-md: 14px;
+      --radius-lg: 16px;
+      --radius-xl: 18px;
+      --radius-2xl: 20px;
+      --radius-card: 24px;
+      --radius-pill: 999px;
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-md: 13px;
+      --font-lg: 14px;
+      --font-xl: 15px;
+      --font-2xl: 18px;
+      --font-action: 20px;
+      --font-celebration: 24px;
+      --font-emoji-preview: 46px;
+      --font-emoji-preview-large: 56px;
+      --font-emoji-stage: 68px;
+      --font-emoji-child: 104px;
+      --font-emoji-pool: 36px;
+      --font-stage: 22px;
+      --font-stage-large: 28px;
+      --shadow-sm: 0 2px 0 rgba(36, 48, 68, 0.08);
+      --shadow-md: 0 3px 10px rgba(77, 106, 142, 0.08);
+      --shadow-lg: 0 6px 16px rgba(77, 106, 142, 0.12);
+      --shadow-card: 0 8px 18px rgba(77, 106, 142, 0.14);
+      color: var(--color-text);
+      background: var(--color-page);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body {
       width: 380px;
       margin: 0;
-      padding: 16px;
+      padding: var(--space-2xl);
       background:
-        linear-gradient(180deg, #eaf6ff 0%, #f8fbff 42%, #fff7e8 100%);
+        linear-gradient(180deg, var(--color-page-start) 0%, var(--color-page) 42%, var(--color-page-end) 100%);
       box-sizing: border-box;
     }
 
     h2 {
       margin: 0;
-      color: #30415f;
-      font-size: 15px;
+      color: var(--color-heading);
+      font-size: var(--font-xl);
       line-height: 1.3;
     }
 
     h3 {
       margin: 0;
-      color: #30415f;
-      font-size: 14px;
+      color: var(--color-heading);
+      font-size: var(--font-lg);
       line-height: 1.3;
     }
 
     button:focus-visible,
     input:focus-visible,
     select:focus-visible {
-      outline: 4px solid #0b5cab;
+      outline: 4px solid var(--color-focus);
       outline-offset: 3px;
     }
 
@@ -1073,19 +1130,19 @@ function applyPopupStyles(): void {
 
     .popup {
       display: grid;
-      gap: 16px;
+      gap: var(--space-2xl);
     }
 
     .mode-bar {
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
     }
 
     .mode-bar__label {
       min-width: 0;
-      font-size: 14px;
+      font-size: var(--font-lg);
       font-weight: 800;
       line-height: 1.2;
       overflow-wrap: anywhere;
@@ -1093,29 +1150,29 @@ function applyPopupStyles(): void {
 
     .mode-bar__actions {
       display: flex;
-      gap: 6px;
+      gap: var(--space-xs);
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
     .mode-button {
       min-height: 40px;
-      padding: 8px 12px;
-      border: 2px solid #8ea6c6;
-      border-radius: 14px;
-      background: #ffffff;
-      color: #243044;
+      padding: var(--space-sm) var(--space-lg);
+      border: 2px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text);
       font: inherit;
-      font-size: 13px;
+      font-size: var(--font-md);
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 0 rgba(36, 48, 68, 0.08);
+      box-shadow: var(--shadow-sm);
     }
 
     .stage {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: var(--space-lg);
     }
 
     .stage-card {
@@ -1123,24 +1180,24 @@ function applyPopupStyles(): void {
       display: grid;
       grid-template-rows: auto 1fr auto;
       align-items: center;
-      gap: 10px;
-      padding: 14px 12px 16px;
-      border: 3px solid #ffffff;
-      border-radius: 24px;
-      background: #ffffff;
+      gap: var(--space-md);
+      padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+      border: 3px solid var(--color-surface);
+      border-radius: var(--radius-card);
+      background: var(--color-surface);
       box-sizing: border-box;
-      box-shadow: 0 8px 18px rgba(77, 106, 142, 0.14);
+      box-shadow: var(--shadow-card);
       text-align: center;
     }
 
     .stage-card:first-child {
-      background: #fff4d8;
-      border-color: #ffd37a;
+      background: var(--color-now);
+      border-color: var(--color-now-border);
     }
 
     .stage-card:nth-child(2) {
-      background: #e9f8ee;
-      border-color: #94d7aa;
+      background: var(--color-next);
+      border-color: var(--color-next-border);
     }
 
     .stage-card--preview {
@@ -1148,9 +1205,9 @@ function applyPopupStyles(): void {
       min-height: 118px;
       grid-template-columns: auto 1fr;
       grid-template-rows: auto auto;
-      column-gap: 12px;
-      background: #eef4ff;
-      border-color: #a9bee8;
+      column-gap: var(--space-lg);
+      background: var(--color-preview);
+      border-color: var(--color-preview-border);
     }
 
     .stage-card--preview h2 {
@@ -1158,21 +1215,21 @@ function applyPopupStyles(): void {
     }
 
     .stage-card--preview .stage-card__emoji {
-      font-size: 46px;
+      font-size: var(--font-emoji-preview);
     }
 
     .stage-card--preview .stage-card__label {
-      font-size: 18px;
+      font-size: var(--font-2xl);
       text-align: left;
     }
 
     .stage-card__emoji {
-      font-size: 68px;
+      font-size: var(--font-emoji-stage);
       line-height: 1;
     }
 
     .stage-card__label {
-      font-size: 22px;
+      font-size: var(--font-stage);
       font-weight: 700;
       line-height: 1.2;
       overflow-wrap: anywhere;
@@ -1184,62 +1241,62 @@ function applyPopupStyles(): void {
 
     .popup--child .stage-card {
       min-height: 238px;
-      padding: 18px 14px 20px;
+      padding: var(--space-3xl) var(--space-xl) var(--radius-2xl);
     }
 
     .popup--child .stage-card__emoji {
-      font-size: 104px;
+      font-size: var(--font-emoji-child);
     }
 
     .popup--child .stage-card__label {
-      font-size: 28px;
+      font-size: var(--font-stage-large);
     }
 
     .popup--child .stage-card--preview {
       min-height: 138px;
       grid-template-columns: auto 1fr;
-      padding: 16px 14px;
+      padding: var(--space-2xl) var(--space-xl);
     }
 
     .popup--child .stage-card--preview .stage-card__emoji {
-      font-size: 56px;
+      font-size: var(--font-emoji-preview-large);
     }
 
     .popup--child .stage-card--preview .stage-card__label {
-      font-size: 22px;
+      font-size: var(--font-stage);
     }
 
     .complete-button {
       min-height: 56px;
-      border: 2px solid #0f4f40;
-      border-radius: 20px;
-      background: #166f59;
-      color: #ffffff;
+      border: 2px solid var(--color-primary-dark);
+      border-radius: var(--radius-2xl);
+      background: var(--color-primary);
+      color: var(--color-surface);
       font: inherit;
-      font-size: 20px;
+      font-size: var(--font-action);
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 0 #0f4f40;
+      box-shadow: 0 4px 0 var(--color-primary-dark);
     }
 
     .completion-celebration {
       display: grid;
       justify-items: center;
-      gap: 4px;
-      padding: 12px;
-      border: 2px solid #ffd37a;
-      border-radius: 20px;
-      background: #fff9ea;
-      color: #243044;
+      gap: var(--space-2xs);
+      padding: var(--space-lg);
+      border: 2px solid var(--color-now-border);
+      border-radius: var(--radius-2xl);
+      background: var(--color-celebration);
+      color: var(--color-text);
       text-align: center;
-      box-shadow: 0 6px 16px rgba(77, 106, 142, 0.12);
+      box-shadow: var(--shadow-lg);
       animation: celebration-pop 520ms ease-out both;
     }
 
     .completion-celebration__sparkles {
       display: flex;
-      gap: 12px;
-      font-size: 24px;
+      gap: var(--space-lg);
+      font-size: var(--font-celebration);
       line-height: 1;
     }
 
@@ -1256,14 +1313,14 @@ function applyPopupStyles(): void {
     }
 
     .completion-celebration__message {
-      font-size: 22px;
+      font-size: var(--font-stage);
       line-height: 1.2;
       overflow-wrap: anywhere;
     }
 
     .completion-celebration__card {
-      color: #4a5870;
-      font-size: 13px;
+      color: var(--color-muted);
+      font-size: var(--font-md);
       font-weight: 800;
       line-height: 1.3;
       overflow-wrap: anywhere;
@@ -1307,20 +1364,20 @@ function applyPopupStyles(): void {
     .saved-pairs,
     .premium {
       display: grid;
-      gap: 10px;
+      gap: var(--space-md);
     }
 
     .premium__status {
       margin: 0;
-      color: #4a5870;
-      font-size: 13px;
+      color: var(--color-muted);
+      font-size: var(--font-md);
       line-height: 1.4;
     }
 
     .empty-state {
       margin: 0;
-      color: #4a5870;
-      font-size: 13px;
+      color: var(--color-muted);
+      font-size: var(--font-md);
       line-height: 1.4;
     }
 
@@ -1328,24 +1385,24 @@ function applyPopupStyles(): void {
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border: 2px solid #cad7e8;
-      border-radius: 16px;
-      background: #ffffff;
-      color: #243044;
-      font-size: 13px;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: var(--font-md);
       font-weight: 700;
-      box-shadow: 0 3px 10px rgba(77, 106, 142, 0.08);
+      box-shadow: var(--shadow-md);
     }
 
     .undo-notice button {
       min-height: 36px;
-      padding: 6px 10px;
-      border: 2px solid #0f4f40;
-      border-radius: 12px;
-      background: #166f59;
-      color: #ffffff;
+      padding: var(--space-xs) var(--space-md);
+      border: 2px solid var(--color-primary-dark);
+      border-radius: var(--radius-sm);
+      background: var(--color-primary);
+      color: var(--color-surface);
       font: inherit;
       font-weight: 800;
       cursor: pointer;
@@ -1355,19 +1412,19 @@ function applyPopupStyles(): void {
     .sequence-add {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
+      gap: var(--space-xs);
     }
 
     .premium button,
     .sequence-row button {
       min-height: 40px;
-      padding: 8px 12px;
-      border: 2px solid #8ea6c6;
-      border-radius: 14px;
-      background: #ffffff;
-      color: #243044;
+      padding: var(--space-sm) var(--space-lg);
+      border: 2px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text);
       font: inherit;
-      font-size: 13px;
+      font-size: var(--font-md);
       font-weight: 700;
       cursor: pointer;
     }
@@ -1380,7 +1437,7 @@ function applyPopupStyles(): void {
 
     .sequence-list {
       display: grid;
-      gap: 6px;
+      gap: var(--space-xs);
     }
 
     .sequence-preview-toggle {
@@ -1388,13 +1445,13 @@ function applyPopupStyles(): void {
       display: grid;
       grid-template-columns: auto 1fr;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border: 2px solid #cad7e8;
-      border-radius: 14px;
-      background: #ffffff;
-      color: #243044;
-      font-size: 13px;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: var(--font-md);
       font-weight: 800;
       line-height: 1.3;
       overflow-wrap: anywhere;
@@ -1404,13 +1461,13 @@ function applyPopupStyles(): void {
       width: 20px;
       height: 20px;
       margin: 0;
-      accent-color: #166f59;
+      accent-color: var(--color-primary);
     }
 
     .sequence-row {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 6px;
+      gap: var(--space-xs);
       align-items: center;
     }
 
@@ -1418,19 +1475,19 @@ function applyPopupStyles(): void {
       display: grid;
       grid-template-columns: 28px 1fr;
       align-items: center;
-      gap: 6px;
+      gap: var(--space-xs);
       min-width: 0;
-      font-size: 12px;
+      font-size: var(--font-sm);
       font-weight: 800;
     }
 
     .premium select {
       min-width: 0;
       height: 34px;
-      padding: 5px 8px;
-      border: 2px solid #cad7e8;
-      border-radius: 12px;
-      background: #ffffff;
+      padding: 5px var(--space-sm);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
       color: inherit;
       font: inherit;
     }
@@ -1438,18 +1495,18 @@ function applyPopupStyles(): void {
     .preset-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 8px;
+      gap: var(--space-sm);
     }
 
     .saved-pair-list {
       display: grid;
-      gap: 8px;
+      gap: var(--space-sm);
     }
 
     .saved-pair-row {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 6px;
+      gap: var(--space-xs);
       align-items: center;
     }
 
@@ -1458,11 +1515,11 @@ function applyPopupStyles(): void {
     .saved-pair-button,
     .saved-pair-delete {
       min-height: 44px;
-      padding: 10px 12px;
-      border: 2px solid #cad7e8;
-      border-radius: 16px;
-      background: #ffffff;
-      color: #243044;
+      padding: var(--space-md) var(--space-lg);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      color: var(--color-text);
       font: inherit;
       font-weight: 700;
       text-align: left;
@@ -1475,9 +1532,9 @@ function applyPopupStyles(): void {
     }
 
     .save-pair-button {
-      border-color: #0f4f40;
-      background: #166f59;
-      color: #ffffff;
+      border-color: var(--color-primary-dark);
+      background: var(--color-primary);
+      color: var(--color-surface);
       font-weight: 800;
     }
 
@@ -1487,25 +1544,25 @@ function applyPopupStyles(): void {
     }
 
     .saved-pair-delete {
-      border-color: #8ea6c6;
-      font-size: 12px;
+      border-color: var(--color-border-strong);
+      font-size: var(--font-sm);
     }
 
     .card-form {
       display: grid;
       grid-template-columns: 72px 1fr auto;
-      gap: 8px;
+      gap: var(--space-sm);
       align-items: center;
     }
 
     .card-form input {
       min-width: 0;
       height: 44px;
-      padding: 8px 10px;
-      border: 2px solid #cad7e8;
-      border-radius: 14px;
+      padding: var(--space-sm) var(--space-md);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
       box-sizing: border-box;
-      background: #ffffff;
+      background: var(--color-surface);
       color: inherit;
       font: inherit;
     }
@@ -1513,11 +1570,11 @@ function applyPopupStyles(): void {
     .card-form button,
     .icon-button {
       min-height: 44px;
-      padding: 8px 12px;
-      border: 2px solid #0f4f40;
-      border-radius: 14px;
-      background: #166f59;
-      color: #ffffff;
+      padding: var(--space-sm) var(--space-lg);
+      border: 2px solid var(--color-primary-dark);
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      color: var(--color-surface);
       font: inherit;
       font-weight: 700;
       cursor: pointer;
@@ -1525,7 +1582,7 @@ function applyPopupStyles(): void {
 
     .pool-grid {
       display: grid;
-      gap: 10px;
+      gap: var(--space-md);
     }
 
     .pool-card {
@@ -1533,27 +1590,27 @@ function applyPopupStyles(): void {
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border: 2px solid #dce6f3;
-      border-radius: 18px;
-      background: #ffffff;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      border: 2px solid var(--color-border-soft);
+      border-radius: var(--radius-xl);
+      background: var(--color-surface);
       color: inherit;
       font: inherit;
       font-weight: 700;
       text-align: left;
-      box-shadow: 0 3px 10px rgba(77, 106, 142, 0.08);
+      box-shadow: var(--shadow-md);
     }
 
     .pool-card__emoji {
-      font-size: 36px;
+      font-size: var(--font-emoji-pool);
       line-height: 1;
     }
 
     .pool-card__text {
       min-width: 0;
       display: grid;
-      gap: 4px;
+      gap: var(--space-2xs);
     }
 
     .pool-card__label {
@@ -1565,11 +1622,11 @@ function applyPopupStyles(): void {
       width: fit-content;
       max-width: 100%;
       padding: 2px 7px;
-      border: 1px solid #8ea6c6;
-      border-radius: 999px;
-      background: #f4f8fd;
-      color: #30415f;
-      font-size: 11px;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-pill);
+      background: var(--color-chip);
+      color: var(--color-heading);
+      font-size: var(--font-xs);
       font-weight: 800;
       line-height: 1.3;
       overflow-wrap: anywhere;
@@ -1577,23 +1634,23 @@ function applyPopupStyles(): void {
 
     .pool-card__actions {
       display: flex;
-      gap: 6px;
+      gap: var(--space-xs);
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
     .icon-button {
       min-height: 36px;
-      padding: 6px 10px;
-      background: #ffffff;
-      color: #243044;
-      font-size: 12px;
+      padding: var(--space-xs) var(--space-md);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: var(--font-sm);
     }
 
     .icon-button[aria-pressed="true"] {
-      border-color: #166f59;
-      background: #dff5e8;
-      color: #183f35;
+      border-color: var(--color-primary);
+      background: var(--color-primary-soft);
+      color: var(--color-primary-text);
     }
   `;
   document.head.append(style);
