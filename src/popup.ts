@@ -1039,6 +1039,10 @@ function applyPopupStyles(): void {
       --color-primary-dark: #0f4f40;
       --color-primary-soft: #dff5e8;
       --color-primary-text: #183f35;
+      --color-danger: #9f2f2f;
+      --color-danger-soft: #fff1f1;
+      --color-success: #2f7d55;
+      --color-success-soft: #e7f8ee;
       --color-now: #fff4d8;
       --color-now-border: #ffd37a;
       --color-next: #e9f8ee;
@@ -1081,6 +1085,7 @@ function applyPopupStyles(): void {
       --shadow-md: 0 3px 10px rgba(77, 106, 142, 0.08);
       --shadow-lg: 0 6px 16px rgba(77, 106, 142, 0.12);
       --shadow-card: 0 8px 18px rgba(77, 106, 142, 0.14);
+      --shadow-focus: 0 0 0 5px rgba(11, 92, 171, 0.18);
       color: var(--color-text);
       background: var(--color-page);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -1114,6 +1119,38 @@ function applyPopupStyles(): void {
     select:focus-visible {
       outline: 4px solid var(--color-focus);
       outline-offset: 3px;
+    }
+
+    button,
+    .pool-card,
+    .stage-card,
+    .empty-state,
+    .completion-celebration,
+    .undo-notice {
+      transition:
+        background-color 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        color 160ms ease,
+        opacity 160ms ease,
+        transform 120ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.58;
+      box-shadow: none;
+      transform: none;
     }
 
     .visually-hidden {
@@ -1167,6 +1204,12 @@ function applyPopupStyles(): void {
       font-weight: 700;
       cursor: pointer;
       box-shadow: var(--shadow-sm);
+    }
+
+    .mode-button:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      background: var(--color-primary-soft);
+      color: var(--color-primary-text);
     }
 
     .stage {
@@ -1279,14 +1322,24 @@ function applyPopupStyles(): void {
       box-shadow: 0 4px 0 var(--color-primary-dark);
     }
 
+    .complete-button:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+      box-shadow: 0 5px 0 #0a352b;
+    }
+
+    .complete-button:active:not(:disabled) {
+      box-shadow: 0 2px 0 #0a352b;
+    }
+
     .completion-celebration {
       display: grid;
       justify-items: center;
       gap: var(--space-2xs);
       padding: var(--space-lg);
-      border: 2px solid var(--color-now-border);
+      border: 2px solid var(--color-success);
       border-radius: var(--radius-2xl);
-      background: var(--color-celebration);
+      background:
+        linear-gradient(180deg, var(--color-celebration) 0%, var(--color-success-soft) 100%);
       color: var(--color-text);
       text-align: center;
       box-shadow: var(--shadow-lg);
@@ -1357,6 +1410,15 @@ function applyPopupStyles(): void {
       .completion-celebration__sparkles span {
         animation: none;
       }
+
+      button,
+      .pool-card,
+      .stage-card,
+      .empty-state,
+      .completion-celebration,
+      .undo-notice {
+        transition: none;
+      }
     }
 
     .presets,
@@ -1376,9 +1438,15 @@ function applyPopupStyles(): void {
 
     .empty-state {
       margin: 0;
+      padding: var(--space-lg);
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.68);
       color: var(--color-muted);
       font-size: var(--font-md);
+      font-weight: 700;
       line-height: 1.4;
+      text-align: center;
     }
 
     .undo-notice {
@@ -1408,6 +1476,10 @@ function applyPopupStyles(): void {
       cursor: pointer;
     }
 
+    .undo-notice button:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
     .premium__actions,
     .sequence-add {
       display: grid;
@@ -1429,9 +1501,15 @@ function applyPopupStyles(): void {
       cursor: pointer;
     }
 
+    .premium button:hover:not(:disabled),
+    .sequence-row button:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      background: var(--color-primary-soft);
+      color: var(--color-primary-text);
+    }
+
     .premium button:disabled,
     .premium select:disabled {
-      cursor: default;
       opacity: 0.55;
     }
 
@@ -1455,6 +1533,11 @@ function applyPopupStyles(): void {
       font-weight: 800;
       line-height: 1.3;
       overflow-wrap: anywhere;
+    }
+
+    .sequence-preview-toggle:has(input:focus-visible) {
+      border-color: var(--color-focus);
+      box-shadow: var(--shadow-focus);
     }
 
     .sequence-preview-toggle input {
@@ -1492,6 +1575,11 @@ function applyPopupStyles(): void {
       font: inherit;
     }
 
+    .premium select:not(:disabled):hover,
+    .card-form input:hover {
+      border-color: var(--color-border-strong);
+    }
+
     .preset-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -1526,6 +1614,13 @@ function applyPopupStyles(): void {
       cursor: pointer;
     }
 
+    .preset-button:hover:not(:disabled),
+    .saved-pair-button:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      background: var(--color-primary-soft);
+      color: var(--color-primary-text);
+    }
+
     .save-pair-button,
     .saved-pair-delete {
       text-align: center;
@@ -1538,14 +1633,26 @@ function applyPopupStyles(): void {
       font-weight: 800;
     }
 
+    .save-pair-button:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
     .save-pair-button:disabled {
-      cursor: default;
       opacity: 0.62;
+      background: var(--color-success-soft);
+      border-color: var(--color-success);
+      color: var(--color-primary-text);
     }
 
     .saved-pair-delete {
       border-color: var(--color-border-strong);
       font-size: var(--font-sm);
+    }
+
+    .saved-pair-delete:hover:not(:disabled) {
+      border-color: var(--color-danger);
+      background: var(--color-danger-soft);
+      color: var(--color-danger);
     }
 
     .card-form {
@@ -1580,6 +1687,10 @@ function applyPopupStyles(): void {
       cursor: pointer;
     }
 
+    .card-form button:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
     .pool-grid {
       display: grid;
       gap: var(--space-md);
@@ -1600,6 +1711,18 @@ function applyPopupStyles(): void {
       font-weight: 700;
       text-align: left;
       box-shadow: var(--shadow-md);
+    }
+
+    .pool-card:hover {
+      border-color: var(--color-border-strong);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-1px);
+    }
+
+    .pool-card[data-selected-now="true"],
+    .pool-card[data-selected-next="true"] {
+      border-color: var(--color-primary);
+      background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-primary-soft) 100%);
     }
 
     .pool-card__emoji {
@@ -1647,10 +1770,23 @@ function applyPopupStyles(): void {
       font-size: var(--font-sm);
     }
 
+    .icon-button:hover:not(:disabled) {
+      border-color: var(--color-primary);
+      background: var(--color-primary-soft);
+      color: var(--color-primary-text);
+    }
+
     .icon-button[aria-pressed="true"] {
       border-color: var(--color-primary);
       background: var(--color-primary-soft);
       color: var(--color-primary-text);
+      box-shadow: inset 0 0 0 2px rgba(22, 111, 89, 0.16);
+    }
+
+    .icon-button[data-action="delete"]:hover:not(:disabled) {
+      border-color: var(--color-danger);
+      background: var(--color-danger-soft);
+      color: var(--color-danger);
     }
   `;
   document.head.append(style);
